@@ -1,0 +1,36 @@
+{
+  "projectName": "reserve-game",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "pnpm",
+  "includeExamples": true,
+  "tailwind": true,
+  "addOnOptions": {
+    "drizzle": {
+      "database": "postgresql"
+    }
+  },
+  "envVarValues": {
+    "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_bW92aW5nLW11dHQtNC5jbGVyay5hY2NvdW50cy5kZXYk"
+  },
+  "git": true,
+  "install": true,
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "biome",
+    "nitro",
+    "drizzle",
+    "compiler",
+    "ai",
+    "sentry",
+    "form",
+    "t3env",
+    "table",
+    "store",
+    "tanstack-query",
+    "posthog",
+    "clerk"
+  ]
+}
