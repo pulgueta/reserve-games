@@ -16,31 +16,48 @@ Before substantial work:
 - Multiple matches: prefer the most specific local skill for the package or concern you are changing; load additional skills only when the task spans multiple packages or concerns.
 <!-- intent-skills:end -->
 
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->
+
 ---
 
 ## 0. The discipline (read before editing anything)
 
 Before you change a file:
 
-1. **Research before code.** Read the file, its imports, its callers, and the relation links below.
+1. **Research before code.** Read the file, its imports, and its callers.
 2. **State assumptions; surface tradeoffs.** If two interpretations exist, name them. If a simpler path exists, say so. If something is unclear, stop and ask — do not paper over confusion with defensive code.
 3. **Surgical changes only.** Every changed line must trace to the task. Don't reformat, "improve", or refactor adjacent code. Match existing style. Remove only the orphans *your* change created; flag pre-existing dead code, don't delete it.
-4. **Goal-driven verification.** Turn the task into a checkable goal and loop until it passes. The required gates are in §7.
+4. **Goal-driven verification.** Turn the task into a checkable goal and loop until it passes. The required gates are in §5.
 
 If a senior engineer would call your change overcomplicated or speculative, rewrite it smaller.
 
 ---
 
-## 1. Components
+## 1. Architecture & conventions
 
-- Functional `FC` components, named exports, colocated under `src/components/<domain>/`. Shared primitives live in `src/components/ui/` (Base UI + shadcn-style), forms in `src/components/form/`.
-- **Heavy/below-the-fold components are `lazy()`-loaded**. Use React 19 `<Activity mode="visible|hidden">` to keep mounted-but-hidden subtrees warm instead of unmount/remount, this preserves the component state.
-- Icons: `@phosphor-icons/react`, `weight="bold"` by default via the root `IconContext`.
-- Haptics: `useWebHaptics()` from `web-haptics/react`.
+A TanStack Start app (file-based routing, SSR) on a Convex backend with Clerk auth. Code is organized **by domain**: UI under `src/components/<domain>/`, one hook module per domain in `src/hooks/`, one Convex file per domain in `convex/`. Keep a new feature's pieces together along that grain rather than scattering them by file type.
 
-### 1.1 Forms — TanStack Form via `useAppForm` ONLY
+### 1.1 Components
 
-- `useAppForm` (from `src/components/form/use-form.tsx`) — created with `createFormHook`, exposes field components (`TextField`, `TextAreaField`, `PasswordField`, `SelectField`, `SwitchField`, `CheckboxField`, `RadioGroupField`) and form components (`SubmitButton`, `ResetButton`).
+- Functional `FC` components, named exports, colocated under `src/components/<domain>/`. Shared primitives live in `src/components/ui/` (Base UI + shadcn-style); form fields in `src/components/form/`.
+- Heavy/below-the-fold components are `lazy()`-loaded. Use React 19 `<Activity mode="visible|hidden">` to keep hidden subtrees mounted (preserves state) instead of unmount/remount.
+- Icons: `@phosphor-icons/react` (`weight="bold"` by default via the root `IconContext`). Haptics: `useWebHaptics()` from `web-haptics/react`.
+
+### 1.2 Forms — `useAppForm` only
+
+Build forms with `useAppForm` (`src/components/form/use-form.tsx`, created via `createFormHook`). It exposes the field components (`TextField`, `TextAreaField`, `PasswordField`, `SelectField`, `SwitchField`, `CheckboxField`, `RadioGroupField`) and form components (`SubmitButton`, `ResetButton`). Don't hand-roll form state.
 
 ```tsx
 const form = useAppForm({
@@ -53,11 +70,50 @@ const form = useAppForm({
       await mutation(value);
       haptic.trigger("success"); toast.success("…"); form.reset();
     } catch (error) {
-      haptic.trigger("error");
+      haptic.trigger("error"); toast.error(getConvexErrorMessage(error));
     }
   },
 });
 ```
+
+### 1.3 Backend — Convex
+
+Functions use the custom builders in `convex/index.ts`, never the raw Convex `query` / `mutation` / `action`:
+
+- `zQuery` / `zMutation` / `zAction` (+ `zInternal*`) — Zod-validated args and returns.
+- `zAuthQuery` / `zAuthMutation` / `zAuthAction` — same, plus they resolve the Clerk user and inject `ctx.userId` (throwing when unauthenticated).
+- `zodTable(name, schema)` — defines a table from one Zod schema and derives its row type, insert/update schemas, and wire-safe arg validators. Tables live in `convex/schema.ts`.
+
+Conventions:
+
+- One file per domain. Public reads use `zQuery`; writes use an auth builder and stamp ownership server-side (`ownerId: ctx.userId`) — never trust a client-sent owner/user id.
+- Thin CRUD with a single ownership check per write; no row-level-security / ACL framework unless asked.
+- Throw `ConvexError` (messages centralized in `convex/errors.ts`); read them on the client with `getConvexErrorMessage`.
+- Always query through an index (`by_<field>` / `by_<field1>_<field2>` via `.withIndex(...)`); never an unindexed scan.
+
+### 1.4 Data fetching & state
+
+Convex talks to TanStack Query via `@convex-dev/react-query`. One hook module per domain (e.g. `use-venues`):
+
+- Export **query-options factories**, then wrap them in thin `use*` hooks — the factory is reused by both route loaders and components, so there's no waterfall.
+
+  ```ts
+  const xQueryOptions = (args) => convexQuery(api.x.y, args); // shared by loaders + hooks
+  const useX = (args) => useSuspenseQuery(xQueryOptions(args)); // useQuery for optional/lazy/streaming
+  ```
+
+- Group mutations in a `use*Actions()` hook (one `useMutation({ mutationFn: useConvexMutation(api.x.y) })` per action; add `.withOptimisticUpdate(...)` where it helps).
+- Never call `useQuery(convexQuery(...))` inline — always factory + `use*` hook.
+- Cache/stale tiers come from the shared config in `src/config/cache.ts`, not ad-hoc per call.
+- Env is split and validated with `@t3-oss/env-core` (client vs server under `src/env/`); import from there, never read `process.env` / `import.meta.env` directly.
+
+### 1.5 Routing & auth
+
+File-based routes in `src/routes/`. Clerk is resolved on the server during the root route's `beforeLoad` and injected into router context as `{ userId, token }`; the same auth seeds Convex for SSR.
+
+- **Loaders prefetch**: `ensureQueryData(xQueryOptions())` for above-the-fold data, `prefetchQuery(...)` for below-the-fold/streamed; components then read the same factory (cache hit).
+- **Guards**: protected subtrees live under `_authedRoutes/` (a `beforeLoad` redirects to `/login` when there's no `userId`); logged-out pages (`login` / `register`) live under `_auth/` and render Clerk's `<SignIn>` / `<SignUp>`.
+- Per-route SEO via the `seo()` helper in `head: () => ({ meta: seo({...}) })`; read `loaderData` in `head` for dynamic titles.
 
 ---
 
@@ -102,9 +158,8 @@ Turn the task into a verifiable goal and loop until it passes ("add validation"
 → "write tests for invalid inputs, then make them pass"). Before you call a task
 done, run:
 
-- `pnpm dlx react-doctor@latest . --project panabarbero --verbose --diff` — when
-  you touched React. No new regressions vs `main` (a known baseline of
-  pre-existing warnings exists; don't fix unrelated ones).
+- `pnpm doctor:diff` — when you touched React. No new regressions vs `main` (a
+  known baseline of pre-existing warnings exists; don't fix unrelated ones).
 - `pnpm lint` and `pnpm format` on **your** files (double quotes, 2-space indent,
   `import type` for type-only imports). Don't reformat files you didn't change.
 - `pnpm build` (vite) → exit 0 for anything affecting the build/SSR.
