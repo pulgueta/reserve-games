@@ -1,9 +1,10 @@
 allowBuilds:
   '@google/genai': true
-  '@sentry/cli': true
   core-js: true
   esbuild: true
   protobufjs: true
+minimumReleaseAgeExclude:
+  - cnfast@0.0.7
 onlyBuiltDependencies:
   - esbuild
   - lightningcss
