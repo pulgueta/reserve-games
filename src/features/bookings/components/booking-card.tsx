@@ -14,7 +14,11 @@ const STATUS_STYLES: Record<Booking["status"], string> = {
   completed: "bg-secondary text-secondary-foreground",
 };
 
-export const BookingCard: FC<{ booking: Booking }> = ({ booking }) => {
+interface BookingCardProps {
+  booking: Booking;
+}
+
+export const BookingCard: FC<BookingCardProps> = ({ booking }) => {
   const haptic = useWebHaptics();
   const {
     cancelBooking: { mutateAsync: cancelBooking, isPending },

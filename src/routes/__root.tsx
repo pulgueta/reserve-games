@@ -26,6 +26,7 @@ import { getClerkAuthQueryOptions } from "@/hooks/use-session";
 import PostHogProvider from "@/integrations/posthog/provider";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { seo } from "@/lib/seo";
+import { ThemeProvider } from "@/providers/theme";
 import appCss from "@/styles.css?url";
 
 type RouterContext = {
@@ -88,25 +89,27 @@ function RootDocument({ children }: { children?: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="antialiased">
-        <ClerkProvider
-          publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}
-          localization={esMX}
-          appearance={clerkAppearance}
-        >
-          <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-            <QueryClientProvider client={queryClient}>
-              <PostHogProvider>
-                <IconContext.Provider value={ICON_CONTEXT_VALUE}>
-                  <Toaster />
-                  <Header />
-                  <main className="min-h-[calc(100dvh-4rem)]">
-                    {children ?? <Outlet />}
-                  </main>
-                </IconContext.Provider>
-              </PostHogProvider>
-            </QueryClientProvider>
-          </ConvexProviderWithClerk>
-        </ClerkProvider>
+        <ThemeProvider defaultTheme="system">
+          <ClerkProvider
+            publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}
+            localization={esMX}
+            appearance={clerkAppearance}
+          >
+            <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
+              <QueryClientProvider client={queryClient}>
+                <PostHogProvider>
+                  <IconContext.Provider value={ICON_CONTEXT_VALUE}>
+                    <Toaster />
+                    <Header />
+                    <main className="min-h-[calc(100dvh-4rem)]">
+                      {children ?? <Outlet />}
+                    </main>
+                  </IconContext.Provider>
+                </PostHogProvider>
+              </QueryClientProvider>
+            </ConvexProviderWithClerk>
+          </ClerkProvider>
+        </ThemeProvider>
 
         <Scripts />
 

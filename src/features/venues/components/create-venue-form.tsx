@@ -9,9 +9,11 @@ import { useVenueActions } from "@/features/venues/hooks/use-venues";
 import { getConvexErrorMessage } from "@/lib/convex-errors";
 import { createVenueSchema, SPORT_OPTIONS } from "@/lib/schemas";
 
-export const CreateVenueForm: FC<{ onSuccess?: () => void }> = ({
-  onSuccess,
-}) => {
+interface CreateVenueFormProps {
+  onSuccess?: () => void;
+}
+
+export const CreateVenueForm: FC<CreateVenueFormProps> = ({ onSuccess }) => {
   const haptic = useWebHaptics();
   const {
     createVenue: { mutateAsync: createVenue },

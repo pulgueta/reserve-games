@@ -9,10 +9,12 @@ import { useBookingActions } from "@/features/bookings/hooks/use-bookings";
 import { getConvexErrorMessage } from "@/lib/convex-errors";
 import { createBookingSchema, DURATION_OPTIONS } from "@/lib/schemas";
 
-export const CreateBookingForm: FC<{
+interface CreateBookingFormProps {
   venue: Venue;
   onSuccess?: () => void;
-}> = ({ venue, onSuccess }) => {
+}
+
+export const CreateBookingForm: FC<CreateBookingFormProps> = ({ venue, onSuccess }) => {
   const haptic = useWebHaptics();
   const {
     createBooking: { mutateAsync: createBooking },

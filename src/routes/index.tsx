@@ -1,6 +1,9 @@
-import { ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, WarningIcon } from "@phosphor-icons/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CategoryChips } from "@/features/search/components/category-chips";
 import { HeroSearch } from "@/features/search/components/hero-search";
 import { VenueGrid } from "@/features/venues/components/venue-grid";
@@ -65,30 +68,62 @@ function Home() {
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-16">
-        <div className="mb-5 flex items-end justify-between gap-4">
+        <div className="space-y-8">
           <div>
-            <h2 className="font-semibold text-2xl tracking-tight">
-              Populares ahora
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              Los espacios mejor calificados cerca de ti.
-            </p>
-          </div>
-          <Link
-            to="/venues"
-            search={{}}
-            className="inline-flex shrink-0 items-center gap-1 font-medium text-primary text-sm hover:underline"
-          >
-            Ver todo
-            <ArrowRightIcon className="size-4" />
-          </Link>
-        </div>
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="font-semibold text-2xl tracking-tight">
+                  Populares ahora
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  Los espacios mejor calificados cerca de ti.
+                </p>
+              </div>
+              <Link
+                to="/venues"
+                search={{}}
+                className="inline-flex shrink-0 items-center gap-1 font-medium text-primary text-sm hover:underline"
+              >
+                Ver todo
+                <ArrowRightIcon className="size-4" />
+              </Link>
+            </div>
 
-        <VenueGrid
-          venues={popular}
-          emptyTitle="Aún no hay espacios"
-          emptyDescription="Vuelve pronto: estamos sumando canchas y mesas."
-        />
+            <VenueGrid
+              venues={popular}
+              emptyTitle="Aún no hay espacios"
+              emptyDescription="Vuelve pronto: estamos sumando canchas y mesas."
+            />
+          </div>
+
+          <div className="space-y-6 rounded-lg border border-border bg-card p-6">
+            <div>
+              <h3 className="mb-4 font-semibold text-lg">Warning Variants Test</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2 text-muted-foreground text-sm">Button</p>
+                  <Button variant="warning">Warning Button</Button>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-muted-foreground text-sm">Badge</p>
+                  <Badge variant="warning">Warning Badge</Badge>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-muted-foreground text-sm">Alert</p>
+                  <Alert variant="warning">
+                    <WarningIcon />
+                    <AlertTitle>Warning Alert</AlertTitle>
+                    <AlertDescription>
+                      This is a test of the warning variant alert component.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );

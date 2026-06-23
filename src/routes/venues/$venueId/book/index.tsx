@@ -1,19 +1,16 @@
-import type { RentalEquipment, Venue, VenueUnit } from "@convex/schema";
-import { ArrowLeftIcon, CheckCircleIcon } from "@phosphor-icons/react";
+import type { Venue } from "@convex/schema";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Authenticated, Unauthenticated } from "convex/react";
-import { type FC, useState } from "react";
+import { useState } from "react";
 
 import { LoadingComponent } from "@/components/layout/loading-component";
 import { Button } from "@/components/ui/button";
-import {
-  BookingFlow,
-  type ConfirmedBooking,
-} from "@/features/bookings/components/booking-flow";
+import { AuthedBookingFlow } from "@/features/bookings/components/authed-booking-flow";
+import { BookingConfirmation } from "@/features/bookings/components/booking-confirmation";
+import type { ConfirmedBooking } from "@/features/bookings/components/booking-flow";
 import { venueDetailQueryOptions } from "@/features/venues/hooks/use-venues";
-import { useSession } from "@/hooks/use-session";
-import { formatCOP, formatDateTime } from "@/lib/format";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/venues/$venueId/book/")({
@@ -50,7 +47,7 @@ function BookPage() {
   const { venue, units, equipment } = data;
 
   if (confirmed) {
-    return <Confirmation venue={venue} booking={confirmed} />;
+    return <BookingConfirmation venue={venue} booking={confirmed} />;
   }
 
   return (
@@ -89,72 +86,3 @@ function BookPage() {
     </div>
   );
 }
-
-const AuthedBookingFlow: FC<{
-  venue: Venue;
-  units: VenueUnit[];
-  equipment: RentalEquipment[];
-  onConfirmed: (booking: ConfirmedBooking) => void;
-}> = ({ venue, units, equipment, onConfirmed }) => {
-  const { data: session } = useSession();
-  return (
-    <BookingFlow
-      venue={venue}
-      units={units}
-      equipment={equipment}
-      defaultName={session?.name ?? undefined}
-      onConfirmed={onConfirmed}
-    />
-  );
-};
-
-const Confirmation: FC<{ venue: Venue; booking: ConfirmedBooking }> = ({
-  venue,
-  booking,
-}) => (
-  <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center">
-    <CheckCircleIcon weight="fill" className="size-16 text-primary" />
-    <h1 className="mt-4 font-semibold text-2xl tracking-tight">
-      ¡Reserva confirmada!
-    </h1>
-    <p className="mt-1 text-muted-foreground">Te esperamos en {venue.name}.</p>
-
-    <dl className="mt-6 w-full rounded-2xl border bg-card p-5 text-left text-sm">
-      <div className="flex justify-between gap-2 py-1.5">
-        <dt className="text-muted-foreground">Fecha y hora</dt>
-        <dd className="font-medium">{formatDateTime(booking.date)}</dd>
-      </div>
-      {booking.unitLabel && (
-        <div className="flex justify-between gap-2 py-1.5">
-          <dt className="text-muted-foreground">Espacio</dt>
-          <dd className="font-medium">{booking.unitLabel}</dd>
-        </div>
-      )}
-      <div className="flex justify-between gap-2 py-1.5">
-        <dt className="text-muted-foreground">Duración</dt>
-        <dd className="font-medium">
-          {booking.durationHours}{" "}
-          {booking.durationHours === 1 ? "hora" : "horas"}
-        </dd>
-      </div>
-      <div className="flex justify-between gap-2 py-1.5">
-        <dt className="text-muted-foreground">Total</dt>
-        <dd className="font-semibold">{formatCOP(booking.total)}</dd>
-      </div>
-    </dl>
-
-    <div className="mt-6 flex w-full flex-col gap-2 sm:flex-row">
-      <Button
-        variant="outline"
-        className="flex-1"
-        nativeButton={false}
-        render={<Link to="/venues/$venueId" params={{ venueId: venue._id }} />}
-      >
-        Ver el espacio
-      </Button>
-      <Button className="flex-1" nativeButton={false} render={<Link to="/" />}>
-        Volver al inicio
-      </Button>
-    </div>
-  </div>
-);
