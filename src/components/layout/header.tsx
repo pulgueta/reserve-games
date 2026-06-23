@@ -3,7 +3,7 @@ import { CourtBasketballIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Authenticated, Unauthenticated } from "convex/react";
 
-import ThemeToggle from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 const navLinkClass =
