@@ -15,8 +15,8 @@
     "lint": "biome lint --write --unsafe .",
     "format": "biome format --write .",
     "check": "biome check",
-    "doctor:full": "react-doctor . --verbose --full",
-    "doctor:diff": "react-doctor . --verbose --diff",
+    "doctor:full": "react-doctor . --verbose --scope full",
+    "doctor:diff": "react-doctor . --verbose --scope changed",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
