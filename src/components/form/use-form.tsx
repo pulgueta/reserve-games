@@ -9,12 +9,12 @@ const TextField = lazy(() =>
   })),
 );
 const TextAreaField = lazy(() =>
-  import("./text-field").then((module) => ({
+  import("./textarea-field").then((module) => ({
     default: module.TextAreaField,
   })),
 );
 const PasswordField = lazy(() =>
-  import("./text-field").then((module) => ({
+  import("./password-field").then((module) => ({
     default: module.PasswordField,
   })),
 );

@@ -7,15 +7,15 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useFieldContext } from "./form-context";
 
-interface TextFieldProps extends ComponentProps<typeof Input> {
+interface TextAreaFieldProps extends ComponentProps<typeof Textarea> {
   label: string;
   description?: string;
 }
 
-export const TextField: FC<TextFieldProps> = ({
+export const TextAreaField: FC<TextAreaFieldProps> = ({
   label,
   description,
   ...props
@@ -29,7 +29,7 @@ export const TextField: FC<TextFieldProps> = ({
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-      <Input
+      <Textarea
         id={field.name}
         name={field.name}
         value={field.state.value}
