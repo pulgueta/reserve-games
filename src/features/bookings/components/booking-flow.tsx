@@ -1,14 +1,15 @@
 import type { RentalEquipment, Venue, VenueUnit } from "@convex/schema";
 import { CheckIcon } from "@phosphor-icons/react";
 import { revalidateLogic } from "@tanstack/react-form";
-import { type FC, useState } from "react";
-import { toast } from "sonner";
+import type { FC } from "react";
+import { useState } from "react";
 import { useWebHaptics } from "web-haptics/react";
 import { z } from "zod";
 
 import { useAppForm } from "@/components/form/use-form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "@/components/ui/toast";
 import {
   useBookingActions,
   useDayBookings,

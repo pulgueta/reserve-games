@@ -1,9 +1,9 @@
 import type { Booking } from "@convex/schema";
 import type { FC } from "react";
-import { toast } from "sonner";
 import { useWebHaptics } from "web-haptics/react";
 
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { useBookingActions } from "@/features/bookings/hooks/use-bookings";
 import { getConvexErrorMessage } from "@/lib/convex-errors";
 
