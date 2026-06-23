@@ -37,6 +37,9 @@ export function getRouter() {
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
+    // Browser-native view transitions on every navigation (no React canary
+    // needed). Per-route/shared-element morphs opt in via `view-transition-name`.
+    defaultViewTransition: true,
     defaultErrorComponent: DefaultCatchBoundary,
     // Base Convex context for the whole render; `__root` adds the Clerk-aware
     // `ConvexProviderWithClerk` for the app tree.
