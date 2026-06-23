@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useWebHaptics } from "web-haptics/react";
 
 import { useAppForm } from "@/components/form/use-form";
-import { useVenueActions } from "@/hooks/use-venues";
+import { useVenueActions } from "@/features/venues/hooks/use-venues";
 import { getConvexErrorMessage } from "@/lib/convex-errors";
 import { createVenueSchema, SPORT_OPTIONS } from "@/lib/schemas";
 

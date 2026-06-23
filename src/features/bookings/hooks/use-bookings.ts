@@ -1,10 +1,22 @@
 import { api } from "@convex/_generated/api";
 import type { Venue } from "@convex/schema";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export function myBookingsQueryOptions() {
   return convexQuery(api.bookings.getMine, {});
+}
+
+export function dayBookingsQueryOptions(
+  venueId: Venue["_id"],
+  dayStart: number,
+) {
+  return convexQuery(api.bookings.getDayBookings, { venueId, dayStart });
+}
+
+/** Same-day bookings for a venue (availability). Lazy: updates as the date changes. */
+export function useDayBookings(venueId: Venue["_id"], dayStart: number) {
+  return useQuery(dayBookingsQueryOptions(venueId, dayStart));
 }
 
 export function bookingsByVenueQueryOptions(venueId: Venue["_id"]) {

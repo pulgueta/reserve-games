@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useWebHaptics } from "web-haptics/react";
 
 import { Button } from "@/components/ui/button";
-import { useBookingActions } from "@/hooks/use-bookings";
+import { useBookingActions } from "@/features/bookings/hooks/use-bookings";
 import { getConvexErrorMessage } from "@/lib/convex-errors";
 
 const STATUS_STYLES: Record<Booking["status"], string> = {

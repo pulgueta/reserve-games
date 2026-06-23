@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useWebHaptics } from "web-haptics/react";
 
 import { useAppForm } from "@/components/form/use-form";
-import { useBookingActions } from "@/hooks/use-bookings";
+import { useBookingActions } from "@/features/bookings/hooks/use-bookings";
 import { getConvexErrorMessage } from "@/lib/convex-errors";
 import { createBookingSchema, DURATION_OPTIONS } from "@/lib/schemas";
 
