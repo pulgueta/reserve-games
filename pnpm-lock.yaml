@@ -11,6 +11,9 @@ importers:
       '@base-ui/react':
         specifier: 1.6.0
         version: 1.6.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@clerk/localizations':
+        specifier: ^4.9.2
+        version: 4.9.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@clerk/tanstack-react-start':
         specifier: 1.4.7
         version: 1.4.7(@tanstack/react-router@1.170.16(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tanstack/react-start@1.168.26(crossws@0.4.6(srvx@0.11.17))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -140,6 +143,9 @@ importers:
       streamdown:
         specifier: 2.5.0
         version: 2.5.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      svix:
+        specifier: ^1.96.0
+        version: 1.96.0
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
@@ -487,6 +493,10 @@ packages:
 
   '@clerk/backend@3.8.2':
     resolution: {integrity: sha512-E/o2t3sEyRfB0/YvKd29cHHT/qxdvUwO35AHOFIcCwZ3GxcbfPjyvytsJf+ozwJd+3H89ROy5zcSEPPGnZa/zA==}
+    engines: {node: '>=20.9.0'}
+
+  '@clerk/localizations@4.9.2':
+    resolution: {integrity: sha512-xXY70czhXYPq4yLZjnIdqMiZX6qB8DMjdQMwzidlaIX2R54Eo/u1WUGArKWqb2EnoH2z+HN1KLR7tNi3G6fugw==}
     engines: {node: '>=20.9.0'}
 
   '@clerk/react@6.10.4':
@@ -5315,6 +5325,9 @@ packages:
   stylis@4.4.0:
     resolution: {integrity: sha512-5Z9ZpRzfuH6l/UAvCPAPUo3665Nk2wLaZU3x+TLHKVzIz33+sbJqbtrYoC3KD4/uVOr2Zp+L0LySezP9OHV9yA==}
 
+  svix@1.96.0:
+    resolution: {integrity: sha512-bypvS7RhYYysD/AAnQzV7EIM08rP9aI394VPr2LGb63K17n4hYFfZPWCpFCFs7ZhYEfdO6Rtci16zxfw14ygCg==}
+
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
 
@@ -6202,6 +6215,13 @@ snapshots:
       '@clerk/shared': 4.20.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       standardwebhooks: 1.0.0
       tslib: 2.8.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@clerk/localizations@4.9.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@clerk/shared': 4.20.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -10995,6 +11015,10 @@ snapshots:
       inline-style-parser: 0.2.7
 
   stylis@4.4.0: {}
+
+  svix@1.96.0:
+    dependencies:
+      standardwebhooks: 1.0.0
 
   symbol-tree@3.2.4: {}
 

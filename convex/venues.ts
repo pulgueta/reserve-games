@@ -3,30 +3,61 @@ import { z } from "zod";
 
 import { zAuthMutation, zAuthQuery, zQuery } from ".";
 import { errorMessages } from "./errors";
-import { venues } from "./schema";
+import { sportSchema, venues } from "./schema";
 
-/** Public: active venues, optionally narrowed to a city/state. */
+/**
+ * Public: active venues, optionally narrowed by free-text `q`, sport and/or
+ * city. Always queries through an index — the `by_name_search` search index
+ * when there's a query, otherwise the most selective of `by_sport` /
+ * `by_city_and_state` / `by_isActive`.
+ */
 export const getActive = zQuery({
   args: z.object({
+    q: z.string().optional(),
+    sport: sportSchema.optional(),
     city: z.string().optional(),
     state: z.string().optional(),
   }),
-  handler: async (ctx, args) => {
-    if (args.city && args.state) {
-      const { city, state } = args;
-
+  handler: async (ctx, { q, sport, city, state }) => {
+    if (q) {
       return await ctx.db
         .query("venues")
-        .withIndex("by_city_and_state", (q) =>
-          q.eq("city", city).eq("state", state),
+        .withSearchIndex("by_name_search", (search) => {
+          let builder = search.search("name", q).eq("isActive", true);
+          if (sport) builder = builder.eq("sport", sport);
+          if (city) builder = builder.eq("city", city);
+          if (state) builder = builder.eq("state", state);
+          return builder;
+        })
+        .collect();
+    }
+
+    if (sport) {
+      return await ctx.db
+        .query("venues")
+        .withIndex("by_sport", (qb) => qb.eq("sport", sport))
+        .filter((qb) =>
+          qb.and(
+            qb.eq(qb.field("isActive"), true),
+            city ? qb.eq(qb.field("city"), city) : true,
+          ),
         )
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+    }
+
+    if (city && state) {
+      return await ctx.db
+        .query("venues")
+        .withIndex("by_city_and_state", (qb) =>
+          qb.eq("city", city).eq("state", state),
+        )
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect();
     }
 
     return await ctx.db
       .query("venues")
-      .withIndex("by_isActive", (q) => q.eq("isActive", true))
+      .withIndex("by_isActive", (qb) => qb.eq("isActive", true))
       .collect();
   },
 });
@@ -35,6 +66,45 @@ export const getActive = zQuery({
 export const getById = zQuery({
   args: venues.tools.id,
   handler: async (ctx, args) => ctx.db.get(args.id),
+});
+
+/**
+ * Public: everything the venue detail page needs in one round trip — the venue
+ * plus its active units, rentable equipment, and reviews (newest first).
+ * Returns `null` when the venue is missing.
+ */
+export const getDetail = zQuery({
+  args: venues.tools.id,
+  handler: async (ctx, args) => {
+    const venue = await ctx.db.get(args.id);
+
+    if (!venue) {
+      return null;
+    }
+
+    const [units, equipment, reviews] = await Promise.all([
+      ctx.db
+        .query("venueUnits")
+        .withIndex("by_venueId", (q) => q.eq("venueId", args.id))
+        .collect(),
+      ctx.db
+        .query("rentalEquipment")
+        .withIndex("by_venueId", (q) => q.eq("venueId", args.id))
+        .collect(),
+      ctx.db
+        .query("reviews")
+        .withIndex("by_venueId", (q) => q.eq("venueId", args.id))
+        .order("desc")
+        .collect(),
+    ]);
+
+    return {
+      venue,
+      units: units.filter((u) => u.isActive),
+      equipment: equipment.filter((e) => e.isActive),
+      reviews,
+    };
+  },
 });
 
 /** Owner dashboard: every venue belonging to the authenticated user. */
