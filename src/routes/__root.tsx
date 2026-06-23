@@ -1,4 +1,6 @@
 /// <reference types="vite/client" />
+
+import { esES } from "@clerk/localizations";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { IconContext } from "@phosphor-icons/react";
@@ -24,6 +26,7 @@ import { NotFoundComponent } from "@/components/layout/not-found-component";
 import { clientEnv } from "@/env/client";
 import { getClerkAuthQueryOptions } from "@/hooks/use-session";
 import PostHogProvider from "@/integrations/posthog/provider";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import { seo } from "@/lib/seo";
 import appCss from "@/styles.css?url";
 
@@ -81,13 +84,17 @@ function RootDocument({ children }: { children?: React.ReactNode }) {
   const { queryClient, convexClient } = Route.useRouteContext();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es-CO" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere]">
-        <ClerkProvider publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}>
+      <body className="antialiased">
+        <ClerkProvider
+          publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}
+          localization={esES}
+          appearance={clerkAppearance}
+        >
           <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
             <QueryClientProvider client={queryClient}>
               <PostHogProvider>
