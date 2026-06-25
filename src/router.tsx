@@ -1,5 +1,5 @@
 import { ConvexQueryClient } from "@convex-dev/react-query";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
@@ -37,13 +37,18 @@ export function getRouter() {
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
+    // Browser-native view transitions on every navigation (no React canary
+    // needed). Per-route/shared-element morphs opt in via `view-transition-name`.
+    defaultViewTransition: true,
     defaultErrorComponent: DefaultCatchBoundary,
     // Base Convex context for the whole render; `__root` adds the Clerk-aware
     // `ConvexProviderWithClerk` for the app tree.
     Wrap: ({ children }) => (
-      <ConvexProvider client={convexQueryClient.convexClient}>
-        {children}
-      </ConvexProvider>
+      <QueryClientProvider client={queryClient}>
+        <ConvexProvider client={convexQueryClient.convexClient}>
+          {children}
+        </ConvexProvider>
+      </QueryClientProvider>
     ),
   });
 

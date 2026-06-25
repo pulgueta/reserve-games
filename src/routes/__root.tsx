@@ -1,30 +1,31 @@
 /// <reference types="vite/client" />
+
+import { esMX } from "@clerk/localizations";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { IconContext } from "@phosphor-icons/react";
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import type { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { Toaster } from "sonner";
+import type { PropsWithChildren } from "react";
 
+import { Devtools } from "@/components/layout/devtools";
 import { DefaultCatchBoundary } from "@/components/layout/error-component";
-import { Header } from "@/components/layout/header";
 import { LoadingComponent } from "@/components/layout/loading-component";
 import { NotFoundComponent } from "@/components/layout/not-found-component";
+import { Toaster } from "@/components/ui/toast";
 import { clientEnv } from "@/env/client";
 import { getClerkAuthQueryOptions } from "@/hooks/use-session";
 import PostHogProvider from "@/integrations/posthog/provider";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import { seo } from "@/lib/seo";
+import { getThemeScript, ThemeProvider } from "@/providers/theme";
 import appCss from "@/styles.css?url";
 
 type RouterContext = {
@@ -33,22 +34,30 @@ type RouterContext = {
   convexQueryClient: ConvexQueryClient;
 };
 
-const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`;
-
 const ICON_CONTEXT_VALUE = { weight: "bold", size: 24 } as const;
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context }) => {
-    const { userId, token } = await context.queryClient.ensureQueryData(
-      getClerkAuthQueryOptions(),
-    );
+    const { userId, token, orgId, orgRole } =
+      await context.queryClient.ensureQueryData(getClerkAuthQueryOptions());
 
     // Seed the SSR Convex HTTP client so loaders can prefetch authed queries.
     if (token) {
       context.convexQueryClient.serverHttpClient?.setAuth(token);
     }
 
-    return { userId, token };
+    // One org = one venue: the active org's role gates the admin/staff subtrees
+    // without a per-route waterfall. Every Convex function re-checks the scope
+    // server-side, so this is UX only.
+    const role: "admin" | "staff" | "cliente" | null = !userId
+      ? null
+      : orgRole === "org:admin"
+        ? "admin"
+        : orgRole === "org:member"
+          ? "staff"
+          : "cliente";
+
+    return { userId, token, orgId, role };
   },
   head: () => ({
     meta: [
@@ -72,52 +81,39 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   pendingComponent: () => <LoadingComponent />,
 });
 
-function RootDocument({ children }: { children?: React.ReactNode }) {
-  // `ConvexProviderWithClerk` requires Clerk's `useAuth` passed as a prop, which
-  // the React Compiler cannot memoize. This static provider tree gains nothing
-  // from compilation, so opt it out rather than restructure the required API.
+// Hoisted function (not arrow) so the `Route` config above can reference it.
+function RootDocument({ children }: PropsWithChildren) {
   "use no memo";
 
-  const { queryClient, convexClient } = Route.useRouteContext();
-
+  const { convexClient } = Route.useRouteContext();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/** biome-ignore lint/security/noDangerouslySetInnerHtml: theme */}
+        <script dangerouslySetInnerHTML={{ __html: getThemeScript() }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere]">
-        <ClerkProvider publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}>
-          <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-            <QueryClientProvider client={queryClient}>
+      <body className="antialiased">
+        <ThemeProvider defaultTheme="system">
+          <ClerkProvider
+            publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}
+            localization={esMX}
+            appearance={clerkAppearance}
+          >
+            <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
               <PostHogProvider>
                 <IconContext.Provider value={ICON_CONTEXT_VALUE}>
-                  <Toaster richColors position="top-center" />
-                  <Header />
-                  <main className="min-h-[calc(100dvh-4rem)]">
-                    {children ?? <Outlet />}
-                  </main>
+                  <Toaster />
+                  {children ?? <Outlet />}
                 </IconContext.Provider>
               </PostHogProvider>
-            </QueryClientProvider>
-          </ConvexProviderWithClerk>
-        </ClerkProvider>
+            </ConvexProviderWithClerk>
+          </ClerkProvider>
+        </ThemeProvider>
 
         <Scripts />
 
-        <TanStackDevtools
-          config={{ position: "bottom-right" }}
-          plugins={[
-            {
-              name: "TanStack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            {
-              name: "TanStack Query",
-              render: <ReactQueryDevtoolsPanel />,
-            },
-          ]}
-        />
+        <Devtools />
       </body>
     </html>
   );
