@@ -1,7 +1,11 @@
 import { auth } from "@clerk/tanstack-react-start/server";
 import { api } from "@convex/_generated/api";
 import { convexQuery } from "@convex-dev/react-query";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 
 /**
@@ -13,13 +17,15 @@ import { createServerFn } from "@tanstack/react-start";
  */
 export const fetchClerkAuth = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { userId, getToken } = await auth();
+    const { userId, getToken, orgId, orgRole } = await auth();
     // The Clerk Convex integration pre-maps the `aud` claim onto the default
     // session token, so no named JWT template is needed. If you instead created
     // a template named "convex", use `getToken({ template: "convex" })`.
     const token = await getToken();
 
-    return { userId, token };
+    // The active organization is the venue the socio/staff is acting on; its
+    // role drives the admin/scanner route guards (one org = one venue).
+    return { userId, token, orgId: orgId ?? null, orgRole: orgRole ?? null };
   },
 );
 
@@ -45,4 +51,10 @@ export function getSessionQueryOptions() {
 /** The current Convex-resolved user. Must be read under `<Authenticated>`. */
 export function useSession() {
   return useSuspenseQuery(getSessionQueryOptions());
+}
+
+/** Non-suspending session read for always-mounted UI (e.g. the header); `null`
+ * when unauthenticated. */
+export function useOptionalSession() {
+  return useQuery(getSessionQueryOptions());
 }
