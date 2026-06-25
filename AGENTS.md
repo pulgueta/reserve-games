@@ -5,6 +5,23 @@ Reserve game is a platform where sport fields can add their fields for users to 
 > [!IMPORTANT]
 > Keep `AGENTS.md` updated with project status.
 
+## Project status
+
+Roles & tenancy run on **Clerk Organizations — one org = one venue**. Membership
+is mirrored into the `@djpanda/convex-authz` component by the Clerk
+org/membership webhooks (`convex/http.ts` → `convex/organizations.ts`):
+`org:admin` → `admin`, `org:member` → `staff`, scoped to
+`{ type: "venue", id: orgId }`. Becoming a socio = creating an org (client Clerk
+hooks); the `organization.created` webhook mirrors an inactive venue stub the
+socio completes in `/dashboard`. Convex writes authorize with
+`authz.require(perm, venueScope(venue.orgId))`; route guards derive role from the
+active org server-side (`use-session` → `__root` `beforeLoad`) and are UX only.
+Staff = org members managed via Clerk hooks; the active/inactive toggle is the
+scoped `staff` role (`convex/staff.ts`). Every `zAuth*` write is rate-limited
+(`convex/ratelimit.ts`, blanket `authWrite` bucket). Payments are mocked
+(`bookings.confirmPayment`) pending a real gateway. **Routes are English; page
+copy is es-CO Spanish.**
+
 <!-- intent-skills:start -->
 ## Skill Loading
 
@@ -47,11 +64,65 @@ If a senior engineer would call your change overcomplicated or speculative, rewr
 
 ## 1. Architecture & conventions
 
-A TanStack Start app (file-based routing, SSR) on a Convex backend with Clerk auth. Code is organized **by domain**: UI under `src/components/<domain>/`, one hook module per domain in `src/hooks/`, one Convex file per domain in `convex/`. Keep a new feature's pieces together along that grain rather than scattering them by file type.
+### 1.0 Code style
+
+**Components**
+
+- Always arrow function components — never `function` declarations:
+  ```tsx
+  export const MyComponent: FC<MyComponentProps> = ({ foo }) => { ... };
+  ```
+- Props use interfaces, never type aliases. If the component accepts children, extend `PropsWithChildren`:
+  ```tsx
+  interface MyComponentProps extends PropsWithChildren {
+    foo: string;
+  }
+  ```
+- Named exports only — no default exports unless the package or file convention requires it (e.g. route files).
+
+**Utilities & hooks**
+
+- Regular function declarations, not arrow functions:
+  ```ts
+  export function useMyHook() { ... }
+  export function formatDate(date: Date) { ... }
+  ```
+
+**Imports**
+
+- Follow `verbatimModuleSyntax`: use `import type` for type-only imports, never mix value and type imports in a single statement:
+  ```ts
+  import type { FC, PropsWithChildren } from "react";
+  import { useState } from "react";
+  ```
+
+**Native APIs over libraries**
+
+Prefer native platform/JS APIs before reaching for a dependency:
+
+- **Formatting** — use `Intl` APIs, never `date-fns`, `moment`, `numeral`, etc.:
+  ```ts
+  new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(amount);
+  new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" }).format(date);
+  new Intl.RelativeTimeFormat("es-CO", { numeric: "auto" }).format(-3, "day"); // "hace 3 días"
+  new Intl.ListFormat("es-CO", { style: "long", type: "conjunction" }).format(items);
+  new Intl.PluralRules("es-CO").select(count); // "one" | "other"
+  ```
+- **URLs** — `URL` / `URLSearchParams` over string concatenation or `qs`.
+- **Dates** — `Date` or `Temporal` (when available) over wrapper libraries.
+- Only add a dependency when the native API is genuinely insufficient for the use case.
+
+---
+
+A TanStack Start app (file-based routing, SSR) on a Convex backend with Clerk auth. Code is organized **feature-first**, kebab-case throughout:
+
+- **Feature code** lives under `src/features/<domain>/` with `components/` and `hooks/` subfolders (e.g. `src/features/venues/components/venue-card.tsx`, `src/features/bookings/hooks/use-bookings.ts`). Keep a feature's pieces together along that grain.
+- **Shared, feature-agnostic code** stays global: the design system in `src/components/ui/` (Base UI + shadcn-style, `base-maia`), form fields in `src/components/form/`, app shell in `src/components/layout/`, cross-cutting hooks in `src/hooks/`, and helpers/tokens in `src/lib/` (`format.ts` for es-CO `Intl`, `sports.ts` for sport metadata, `clerk-appearance.ts`).
+- **Backend** is one Convex file per domain in `convex/`, plus generic internal CRUD in `convex/crud.ts` and the Clerk → Convex user webhook in `convex/http.ts`.
 
 ### 1.1 Components
 
-- Functional `FC` components, named exports, colocated under `src/components/<domain>/`. Shared primitives live in `src/components/ui/` (Base UI + shadcn-style); form fields in `src/components/form/`.
+- Functional `FC` components, named exports, colocated under `src/features/<domain>/components/` (feature UI) or `src/components/{ui,form,layout}/` (shared). Shared primitives live in `src/components/ui/` (Base UI + shadcn-style); form fields in `src/components/form/`.
 - Heavy/below-the-fold components are `lazy()`-loaded. Use React 19 `<Activity mode="visible|hidden">` to keep hidden subtrees mounted (preserves state) instead of unmount/remount.
 - Icons: `@phosphor-icons/react` (`weight="bold"` by default via the root `IconContext`). Haptics: `useWebHaptics()` from `web-haptics/react`.
 

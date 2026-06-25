@@ -11,3 +11,8 @@ dist-ssr
 .vinxi
 __unconfig*
 todos.json
+.playwright-mcp/
+.vercel
+*.png
+
+.design/
