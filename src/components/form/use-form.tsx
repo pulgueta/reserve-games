@@ -9,12 +9,12 @@ const TextField = lazy(() =>
   })),
 );
 const TextAreaField = lazy(() =>
-  import("./text-field").then((module) => ({
+  import("./textarea-field").then((module) => ({
     default: module.TextAreaField,
   })),
 );
 const PasswordField = lazy(() =>
-  import("./text-field").then((module) => ({
+  import("./password-field").then((module) => ({
     default: module.PasswordField,
   })),
 );
@@ -38,6 +38,11 @@ const RadioGroupField = lazy(() =>
     default: module.RadioGroupField,
   })),
 );
+const PhoneField = lazy(() =>
+  import("./phone-field").then((module) => ({
+    default: module.PhoneField,
+  })),
+);
 const ResetButton = lazy(() =>
   import("./reset-button").then((module) => ({
     default: module.ResetButton,
@@ -58,6 +63,7 @@ export const { useAppForm } = createFormHook({
     SwitchField,
     CheckboxField,
     RadioGroupField,
+    PhoneField,
   },
   formComponents: { SubmitButton, ResetButton },
   fieldContext,

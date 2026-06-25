@@ -40,6 +40,9 @@ export const SelectField: FC<SelectFieldProps> = ({
         name={field.name}
         value={field.state.value}
         onValueChange={(value) => field.handleChange(value as string)}
+        // Base UI resolves the trigger's display label from `items`; without it
+        // the trigger shows the raw value (e.g. "football" instead of "Fútbol").
+        items={options}
         {...props}
       >
         <SelectTrigger
