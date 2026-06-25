@@ -8,11 +8,23 @@
  * @module
  */
 
+import type * as authz from "../authz.js";
+import type * as bookingAggregates from "../bookingAggregates.js";
 import type * as bookings from "../bookings.js";
+import type * as constants from "../constants.js";
 import type * as errors from "../errors.js";
+import type * as favorites from "../favorites.js";
+import type * as geospatial from "../geospatial.js";
+import type * as http from "../http.js";
 import type * as identity from "../identity.js";
 import type * as index from "../index.js";
+import type * as organizations from "../organizations.js";
+import type * as ratelimit from "../ratelimit.js";
+import type * as rentalEquipment from "../rentalEquipment.js";
+import type * as reviews from "../reviews.js";
+import type * as staff from "../staff.js";
 import type * as users from "../users.js";
+import type * as venueUnits from "../venueUnits.js";
 import type * as venues from "../venues.js";
 
 import type {
@@ -22,11 +34,23 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  authz: typeof authz;
+  bookingAggregates: typeof bookingAggregates;
   bookings: typeof bookings;
+  constants: typeof constants;
   errors: typeof errors;
+  favorites: typeof favorites;
+  geospatial: typeof geospatial;
+  http: typeof http;
   identity: typeof identity;
   index: typeof index;
+  organizations: typeof organizations;
+  ratelimit: typeof ratelimit;
+  rentalEquipment: typeof rentalEquipment;
+  reviews: typeof reviews;
+  staff: typeof staff;
   users: typeof users;
+  venueUnits: typeof venueUnits;
   venues: typeof venues;
 }>;
 
@@ -56,4 +80,10 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  authz: import("@djpanda/convex-authz/_generated/component.js").ComponentApi<"authz">;
+  rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
+  geospatial: import("@convex-dev/geospatial/_generated/component.js").ComponentApi<"geospatial">;
+  aggregateBookingRevenue: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"aggregateBookingRevenue">;
+  aggregateBookingCount: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"aggregateBookingCount">;
+};

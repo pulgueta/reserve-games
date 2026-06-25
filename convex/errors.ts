@@ -4,9 +4,12 @@
  * copy lives in one place and stays consistent across the app.
  */
 export const errorMessages = {
-  unauthorized: "You are not authorized to perform this action.",
-  notFound: (resource: string) => `The requested ${resource} was not found.`,
-  venueInactive: "This venue is not currently accepting bookings.",
-  bookingInPast: "You cannot book a time in the past.",
-  bookingOutsideHours: "The venue is not open at the selected time.",
+  unauthorized: "No tienes autorización para realizar esta acción.",
+  forbidden: "No tienes permisos para acceder a esta sección.",
+  notFound: (resource: string) => `No se encontró el recurso (${resource}).`,
+  venueInactive: "Este espacio no está recibiendo reservas en este momento.",
+  bookingInPast: "No puedes reservar una hora que ya pasó.",
+  bookingOutsideHours: "El espacio no está abierto en el horario seleccionado.",
+  rateLimitExceeded: `Has excedido el límite de solicitudes. Intenta después.`,
+  slotTaken: "Ese horario ya está reservado. Elige otro.",
 } as const;
