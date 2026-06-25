@@ -12,8 +12,9 @@ export const toast = {
 
 function ToastList() {
   const { toasts } = Toast.useToastManager();
+
   return (
-    <Toast.Viewport className="fixed right-4 bottom-4 z-50 flex w-80 flex-col gap-2">
+    <Toast.Viewport className="fixed right-0 bottom-auto z-50 flex w-[calc(100vw-2rem)] max-w-90 flex-col gap-2">
       {toasts.map((t) => (
         <Toast.Root
           key={t.id}

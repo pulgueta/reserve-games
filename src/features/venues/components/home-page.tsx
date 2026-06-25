@@ -1,0 +1,85 @@
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import { Link } from "@tanstack/react-router";
+import type { FC } from "react";
+
+import { CategoryChips } from "@/features/search/components/category-chips";
+import { HeroSearch } from "@/features/search/components/hero-search";
+import { VenueGrid } from "@/features/venues/components/venue-grid";
+import { useActiveVenues } from "@/features/venues/hooks/use-venues";
+
+// Brand-forward dark hero: deep emerald gradient, no external image to fail.
+const heroBackground =
+  "radial-gradient(120% 130% at 18% 0%, color-mix(in oklch, var(--primary) 58%, black), color-mix(in oklch, var(--primary) 22%, black) 55%, oklch(0.17 0.02 165) 100%)";
+
+/** Landing page: hero search, categories, and the top-rated venues. The list is
+ * loader-prefetched, so it renders without a spinner. */
+export const HomePage: FC = () => {
+  const { data: venues } = useActiveVenues();
+
+  const popular = [...venues]
+    .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
+    .slice(0, 8);
+
+  return (
+    <div className="flex flex-col">
+      <section
+        className="relative overflow-hidden text-white"
+        style={{ background: heroBackground }}
+      >
+        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:py-20 lg:py-24">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-medium text-white/90 text-xs ring-1 ring-white/15">
+            <span className="size-1.5 rounded-full bg-white" />
+            +1.200 espacios en Colombia
+          </span>
+
+          <h1 className="mt-5 max-w-2xl text-balance font-semibold text-4xl tracking-tight sm:text-5xl lg:text-6xl">
+            Encuentra dónde jugar esta noche
+          </h1>
+          <p className="mt-4 max-w-xl text-pretty text-white/75 sm:text-lg">
+            Reserva canchas y mesas por hora, paga en línea y llega listo a
+            jugar. Fútbol, pádel, tenis, ping pong, billar y más.
+          </p>
+
+          <div className="mt-8 max-w-3xl">
+            <HeroSearch />
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
+        <CategoryChips />
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-4 pb-16">
+        <div className="space-y-8">
+          <div>
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="font-semibold text-2xl tracking-tight">
+                  Populares ahora
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  Los espacios mejor calificados cerca de ti.
+                </p>
+              </div>
+              <Link
+                to="/venues"
+                search={{}}
+                className="inline-flex shrink-0 items-center gap-1 font-medium text-primary text-sm hover:underline"
+              >
+                Ver todo
+                <ArrowRightIcon className="size-4" />
+              </Link>
+            </div>
+
+            <VenueGrid
+              venues={popular}
+              emptyTitle="Aún no hay espacios"
+              emptyDescription="Vuelve pronto: estamos sumando canchas y mesas."
+            />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};

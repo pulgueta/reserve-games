@@ -1,24 +1,31 @@
-import { ScriptOnce } from "@tanstack/react-router";
-import { createContext, useContext, useEffect, useState } from "react";
+import type { PropsWithChildren } from "react";
+import { createContext, use, useEffect, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
 
-type ThemeProviderProps = {
-  children: React.ReactNode;
+interface ThemeProviderProps extends PropsWithChildren {
   defaultTheme?: Theme;
   storageKey?: string;
-};
+}
 
 type ThemeProviderState = {
   theme: Theme;
   setTheme: (theme: Theme) => void;
 };
 
-function getThemeScript(storageKey: string, defaultTheme: Theme) {
+/**
+ * Inline script that applies the persisted theme class before first paint, so
+ * there's no flash. Render this once in <head>; it is the single source of
+ * truth for the initial class (the provider only handles runtime changes).
+ */
+export function getThemeScript(
+  storageKey = "theme",
+  defaultTheme: Theme = "system",
+) {
   const key = JSON.stringify(storageKey);
   const fallback = JSON.stringify(defaultTheme);
 
-  return `(function(){try{var t=localStorage.getItem(${key});if(t!=='light'&&t!=='dark'&&t!=='system'){t=${fallback}}var d=matchMedia('(prefers-color-scheme: dark)').matches;var r=t==='system'?(d?'dark':'light'):t;var e=document.documentElement;e.classList.add(r);e.style.colorScheme=r}catch(e){}})();`;
+  return `(function(){try{var t=localStorage.getItem(${key});if(t!=='light'&&t!=='dark'&&t!=='system'){t=${fallback}}var d=matchMedia('(prefers-color-scheme: dark)').matches;var r=t==='system'?(d?'dark':'light'):t;var e=document.documentElement;e.classList.remove('light','dark');e.classList.add(r);e.style.colorScheme=r}catch(e){}})();`;
 }
 
 const ThemeProviderContext = createContext<ThemeProviderState>({
@@ -26,10 +33,18 @@ const ThemeProviderContext = createContext<ThemeProviderState>({
   setTheme: () => {},
 });
 
+function readStoredTheme(storageKey: string, fallback: Theme): Theme {
+  if (typeof localStorage === "undefined") {
+    return fallback;
+  }
+  const stored = localStorage.getItem(storageKey);
+  return stored === "light" || stored === "dark" || stored === "system"
+    ? stored
+    : fallback;
+}
+
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  root.classList.remove("light", "dark");
-
   const resolved =
     theme === "system"
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -37,6 +52,7 @@ function applyTheme(theme: Theme) {
         : "light"
       : theme;
 
+  root.classList.remove("light", "dark");
   root.classList.add(resolved);
   root.style.colorScheme = resolved;
 }
@@ -46,32 +62,27 @@ export const ThemeProvider = ({
   defaultTheme = "system",
   storageKey = "theme",
 }: ThemeProviderProps) => {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme);
-  const [mounted, setMounted] = useState(false);
+  // Read once, lazily — the inline head script already applied the class for
+  // the first paint, so there is no derived-state effect or `mounted` flag.
+  const [theme, setThemeState] = useState<Theme>(() =>
+    readStoredTheme(storageKey, defaultTheme),
+  );
 
+  // Re-apply on runtime theme changes.
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey);
-    setThemeState(
-      stored === "light" || stored === "dark" || stored === "system"
-        ? stored
-        : defaultTheme,
-    );
-    setMounted(true);
-  }, [defaultTheme, storageKey]);
-
-  useEffect(() => {
-    if (!mounted) return;
     applyTheme(theme);
-  }, [theme, mounted]);
+  }, [theme]);
 
+  // Follow the OS preference only while on "system".
   useEffect(() => {
-    if (!mounted || theme !== "system") return;
-
+    if (theme !== "system") {
+      return;
+    }
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => applyTheme("system");
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
-  }, [theme, mounted]);
+  }, [theme]);
 
   const setTheme = (next: Theme) => {
     localStorage.setItem(storageKey, next);
@@ -80,15 +91,11 @@ export const ThemeProvider = ({
 
   return (
     <ThemeProviderContext value={{ theme, setTheme }}>
-      <ScriptOnce>{getThemeScript(storageKey, defaultTheme)}</ScriptOnce>
       {children}
     </ThemeProviderContext>
   );
 };
 
 export function useTheme() {
-  const context = useContext(ThemeProviderContext);
-  if (context === undefined)
-    throw new Error("useTheme must be used within a ThemeProvider");
-  return context;
+  return use(ThemeProviderContext);
 }

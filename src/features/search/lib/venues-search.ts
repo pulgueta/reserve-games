@@ -1,5 +1,5 @@
 import type { Sport } from "@/lib/sports";
-import { SPORT_VALUES } from "@/lib/sports";
+import { SPORTS } from "@/lib/sports";
 
 /** URL search params for the `/venues` listing — all optional, shareable. */
 export interface VenuesSearch {
@@ -21,7 +21,7 @@ export function validateVenuesSearch(
     typeof v === "string" && v.length > 0 ? v : undefined;
   const sport =
     typeof input.sport === "string" &&
-    (SPORT_VALUES as readonly string[]).includes(input.sport)
+    (SPORTS as readonly string[]).includes(input.sport)
       ? (input.sport as Sport)
       : undefined;
 

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { zInternalMutation, zInternalQuery, zQuery } from ".";
-import { getUserId } from "./identity";
+import { zInternalMutation, zQuery } from ".";
+import { resolveRole } from "./authz";
 
 /**
  * The current Clerk-authenticated user. Reads the `users` row synced from Clerk
@@ -28,18 +28,11 @@ export const getCurrentUser = zQuery({
       name: synced?.name ?? identity.name ?? null,
       email: synced?.email ?? identity.email ?? null,
       image: synced?.imageUrl ?? identity.pictureUrl ?? null,
+      /** Highest role across all venues. Per-venue access is checked server-side
+       * with the venue scope; the header derives nav from Clerk org membership. */
+      role: await resolveRole(ctx, identity.subject),
     };
   },
-});
-
-/** Internal: a synced user row by Clerk id (used server-side). */
-export const getByClerkId = zInternalQuery({
-  args: z.object({ clerkId: z.string() }),
-  handler: async (ctx, { clerkId }) =>
-    ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
-      .unique(),
 });
 
 /**
@@ -64,6 +57,9 @@ export const upsertFromClerk = zInternalMutation({
       return existing._id;
     }
 
+    // New accounts hold no role until they create or join a venue org; an
+    // unroled user resolves to `cliente`. Roles are granted by the org
+    // membership webhook (see `organizations.syncMembership`).
     return await ctx.db.insert("users", args);
   },
 });
@@ -81,10 +77,4 @@ export const deleteFromClerk = zInternalMutation({
       await ctx.db.delete(existing._id);
     }
   },
-});
-
-/** Internal helper exported for reuse/testing: the caller's id or null. */
-export const currentUserId = zInternalQuery({
-  args: z.object({}),
-  handler: (ctx) => getUserId(ctx),
 });

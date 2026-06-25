@@ -17,6 +17,11 @@ export interface Slot {
 
 const HOUR_MS = 60 * 60 * 1000;
 
+/** Today as a `yyyy-mm-dd` string (the booking date picker's default + min). */
+export function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 /** Local-midnight epoch ms for a `yyyy-mm-dd` string. */
 export function dayStartMs(dateStr: string): number {
   const [y, m, d] = dateStr.split("-").map(Number);

@@ -3,7 +3,7 @@ import { StarIcon } from "@phosphor-icons/react";
 import type { FC } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { formatRelativeTime } from "@/lib/format";
+import { formatRating, formatRelativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 function Stars({ value, className }: { value: number; className?: string }) {
@@ -52,11 +52,8 @@ export const ReviewsSection: FC<ReviewsSectionProps> = ({
       {reviewCount > 0 && (
         <span className="flex items-center gap-1.5 text-muted-foreground text-sm">
           <Stars value={rating} />
-          {rating.toLocaleString("es-CO", {
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1,
-          })}{" "}
-          · {reviewCount} {reviewCount === 1 ? "reseña" : "reseñas"}
+          {formatRating(rating)} · {reviewCount}{" "}
+          {reviewCount === 1 ? "reseña" : "reseñas"}
         </span>
       )}
     </div>

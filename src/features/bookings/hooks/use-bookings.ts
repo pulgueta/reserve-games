@@ -19,8 +19,26 @@ export function useDayBookings(venueId: Venue["_id"], dayStart: number) {
   return useQuery(dayBookingsQueryOptions(venueId, dayStart));
 }
 
-export function bookingsByVenueQueryOptions(venueId: Venue["_id"]) {
-  return convexQuery(api.bookings.getByVenue, { id: venueId });
+export function staffCalendarQueryOptions(venueId: Venue["_id"]) {
+  return convexQuery(api.bookings.getByVenueForStaff, { id: venueId });
+}
+
+/** Venue bookings projection for staff/admin (no amounts). Lazy: re-runs per
+ * venue. Wraps the factory that dashboard + scanner calendar called inline. */
+export function useStaffCalendar(venueId: Venue["_id"]) {
+  return useQuery(staffCalendarQueryOptions(venueId));
+}
+
+export function venueEarningsQueryOptions(
+  venueId: Venue["_id"],
+  period: "week" | "month",
+  anchor?: number,
+) {
+  return convexQuery(api.bookings.getVenueEarnings, {
+    venueId,
+    period,
+    anchor,
+  });
 }
 
 /** The authenticated user's bookings, newest first. */
@@ -28,9 +46,13 @@ export function useMyBookings() {
   return useSuspenseQuery(myBookingsQueryOptions());
 }
 
-/** Bookings for a venue (owner-only on the server). */
-export function useBookingsByVenue(venueId: Venue["_id"]) {
-  return useSuspenseQuery(bookingsByVenueQueryOptions(venueId));
+/** Owner earnings for a venue and period. Lazy: re-runs as the period changes. */
+export function useVenueEarnings(
+  venueId: Venue["_id"],
+  period: "week" | "month",
+  anchor?: number,
+) {
+  return useQuery(venueEarningsQueryOptions(venueId, period, anchor));
 }
 
 export function useBookingActions() {
@@ -43,6 +65,18 @@ export function useBookingActions() {
   const setBookingStatus = useMutation({
     mutationFn: useConvexMutation(api.bookings.setStatus),
   });
+  const confirmPayment = useMutation({
+    mutationFn: useConvexMutation(api.bookings.confirmPayment),
+  });
+  const verifyByQr = useMutation({
+    mutationFn: useConvexMutation(api.bookings.verifyByQr),
+  });
 
-  return { createBooking, cancelBooking, setBookingStatus };
+  return {
+    createBooking,
+    cancelBooking,
+    setBookingStatus,
+    confirmPayment,
+    verifyByQr,
+  };
 }

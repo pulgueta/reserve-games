@@ -50,7 +50,7 @@ export const HeroSearch: FC = () => {
   const timeId = useId();
   const [sport, setSport] = useState<string>(ANY);
   const [city, setCity] = useState<string>(ANY);
-  const [date, setDate] = useState<string>(todayISO());
+  const [date, setDate] = useState(todayISO);
   const [time, setTime] = useState<string>("19:00");
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {

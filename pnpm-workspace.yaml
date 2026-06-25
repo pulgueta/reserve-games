@@ -4,31 +4,42 @@ allowBuilds:
   esbuild: true
   protobufjs: true
 minimumReleaseAgeExclude:
-  - '@posthog/core@1.35.4'
+  - '@posthog/core@1.37.2'
   - '@posthog/react@1.10.3'
+  - '@posthog/types@1.391.1'
   - '@tanstack/ai-client@0.18.1'
   - '@tanstack/ai-event-client@0.6.4'
   - '@tanstack/ai-react@0.15.10'
   - '@tanstack/ai@0.33.0'
+  - '@tanstack/devtools-client@0.0.8'
+  - '@tanstack/devtools-event-client@0.5.0'
+  - '@tanstack/devtools-ui@0.6.0'
+  - '@tanstack/devtools-vite@0.8.1'
+  - '@tanstack/devtools@0.12.5'
+  - '@tanstack/react-devtools@0.10.8'
   - cnfast@0.0.8
   - convex-helpers@0.1.120
-  - posthog-js@1.392.0
-  - '@vercel/backends@0.8.15'
-  - '@vercel/build-utils@13.31.0'
-  - '@vercel/cervel@0.1.23'
-  - '@vercel/elysia@0.1.94'
-  - '@vercel/express@0.1.106'
-  - '@vercel/fastify@0.1.97'
-  - '@vercel/gatsby-plugin-vercel-builder@2.2.20'
-  - '@vercel/h3@0.1.103'
-  - '@vercel/hono@0.2.97'
-  - '@vercel/koa@0.1.77'
-  - '@vercel/nestjs@0.2.98'
-  - '@vercel/node@5.8.18'
+  - convex@1.42.0
+  - posthog-js@1.393.4
+  - '@vercel/backends@0.8.17'
+  - '@vercel/build-utils@13.32.0'
+  - '@vercel/cervel@0.1.25'
+  - '@vercel/container@0.0.1'
+  - '@vercel/elysia@0.1.96'
+  - '@vercel/express@0.1.108'
+  - '@vercel/fastify@0.1.99'
+  - '@vercel/gatsby-plugin-vercel-builder@2.2.22'
+  - '@vercel/go@3.10.0'
+  - '@vercel/h3@0.1.105'
+  - '@vercel/hono@0.2.99'
+  - '@vercel/koa@0.1.79'
+  - '@vercel/nestjs@0.2.100'
+  - '@vercel/next@4.20.0'
+  - '@vercel/node@5.8.20'
   - '@vercel/python@6.47.1'
   - '@vercel/ruby@2.5.0'
-  - '@vercel/static-build@2.11.0'
-  - vercel@54.15.0
+  - '@vercel/static-build@2.11.2'
+  - vercel@54.16.0
 onlyBuiltDependencies:
   - esbuild
   - lightningcss

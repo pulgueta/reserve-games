@@ -1,20 +1,8 @@
-/**
- * Client-side sport metadata (labels + emoji) for selects, category chips and
- * badges. Kept decoupled from Convex server code; the canonical enum lives in
- * `convex/schema.ts` (`SPORTS`) and the two must stay in sync.
- */
+import { SPORTS } from "@convex/constants";
 
-export const SPORT_VALUES = [
-  "football",
-  "padel",
-  "tennis",
-  "basketball",
-  "pingpong",
-  "billiards",
-  "gym",
-] as const;
+export { SPORTS };
 
-export type Sport = (typeof SPORT_VALUES)[number];
+export type Sport = (typeof SPORTS)[number];
 
 export interface SportMeta {
   value: Sport;
@@ -55,7 +43,7 @@ export const SPORT_META: Record<Sport, SportMeta> = {
   gym: { value: "gym", label: "Gym", emoji: "🏋️", unitNoun: "espacio" },
 };
 
-export const SPORT_LIST: SportMeta[] = SPORT_VALUES.map((v) => SPORT_META[v]);
+export const SPORT_LIST: SportMeta[] = SPORTS.map((v) => SPORT_META[v]);
 
 /** `{ value, label }` options for `SelectField`. */
 export const SPORT_OPTIONS = SPORT_LIST.map(({ value, label }) => ({

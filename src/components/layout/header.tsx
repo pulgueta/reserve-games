@@ -1,6 +1,13 @@
-import { UserButton } from "@clerk/tanstack-react-start";
-import { CourtBasketballIcon } from "@phosphor-icons/react";
-import { Link } from "@tanstack/react-router";
+import { UserButton, useOrganizationList } from "@clerk/tanstack-react-start";
+import {
+  CourtBasketballIcon,
+  QrCodeIcon,
+  SquaresFourIcon,
+  StorefrontIcon,
+  TicketIcon,
+} from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Authenticated, Unauthenticated } from "convex/react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -43,10 +50,82 @@ export function Header() {
             </Button>
           </Unauthenticated>
           <Authenticated>
+            <AuthedNav />
             <UserButton />
           </Authenticated>
         </div>
       </nav>
     </header>
+  );
+}
+
+function AuthedNav() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { isLoaded, setActive, userMemberships } = useOrganizationList({
+    userMemberships: { infinite: true },
+  });
+
+  const memberships = userMemberships?.data ?? [];
+  const adminOrg = memberships.find((m) => m.role === "org:admin");
+  const staffOrg = memberships.find((m) => m.role === "org:member");
+
+  // Switch the active org to the venue being managed/scanned, then refresh the
+  // cached Clerk auth snapshot so the server-side role guard sees the new org
+  // (the snapshot is frozen with staleTime: Infinity), then navigate.
+  const goToOrg = async (orgId: string, to: "/dashboard" | "/scanner") => {
+    if (setActive) {
+      await setActive({ organization: orgId });
+      await queryClient.invalidateQueries({ queryKey: ["clerkAuth"] });
+    }
+    await navigate({ to });
+  };
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        nativeButton={false}
+        render={<Link to="/bookings" />}
+      >
+        <TicketIcon className="size-4" />
+        <span className="hidden sm:inline">Mis reservas</span>
+      </Button>
+
+      {adminOrg && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goToOrg(adminOrg.organization.id, "/dashboard")}
+        >
+          <SquaresFourIcon className="size-4" />
+          <span className="hidden sm:inline">Panel</span>
+        </Button>
+      )}
+
+      {!adminOrg && staffOrg && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goToOrg(staffOrg.organization.id, "/scanner")}
+        >
+          <QrCodeIcon className="size-4" />
+          <span className="hidden sm:inline">Escáner</span>
+        </Button>
+      )}
+
+      {isLoaded && !adminOrg && !staffOrg && (
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<Link to="/become-partner" />}
+        >
+          <StorefrontIcon className="size-4" />
+          <span className="hidden sm:inline">Convertirse en socio</span>
+        </Button>
+      )}
+    </>
   );
 }

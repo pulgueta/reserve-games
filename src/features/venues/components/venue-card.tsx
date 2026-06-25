@@ -18,7 +18,7 @@ export const VenueCard: FC<VenueCardProps> = ({ venue }) => {
   return (
     <Link
       to="/venues/$venueId"
-      params={{ venueId: venue._id }}
+      params={{ venueId: venue.uuid }}
       className="group block focus-visible:outline-none"
     >
       <Card className="gap-0 overflow-hidden p-0 transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg group-focus-visible:ring-3 group-focus-visible:ring-ring/40">

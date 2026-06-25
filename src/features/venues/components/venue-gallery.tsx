@@ -29,6 +29,8 @@ export const VenueGallery: FC<VenueGalleryProps> = ({
         <img
           src={images[active]}
           alt={name}
+          loading="eager"
+          decoding="async"
           className="size-full object-cover"
         />
       </div>
@@ -50,6 +52,8 @@ export const VenueGallery: FC<VenueGalleryProps> = ({
               <img
                 src={src}
                 alt={`${name} ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="size-full object-cover"
               />
             </button>

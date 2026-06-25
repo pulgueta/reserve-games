@@ -7,14 +7,20 @@ import { useAppForm } from "@/components/form/use-form";
 import { toast } from "@/components/ui/toast";
 import { useBookingActions } from "@/features/bookings/hooks/use-bookings";
 import { getConvexErrorMessage } from "@/lib/convex-errors";
-import { createBookingSchema, DURATION_OPTIONS } from "@/lib/schemas";
+import {
+  createBookingSchema,
+  DURATION_OPTIONS,
+} from "@/features/bookings/lib/schemas";
 
 interface CreateBookingFormProps {
   venue: Venue;
   onSuccess?: () => void;
 }
 
-export const CreateBookingForm: FC<CreateBookingFormProps> = ({ venue, onSuccess }) => {
+export const CreateBookingForm: FC<CreateBookingFormProps> = ({
+  venue,
+  onSuccess,
+}) => {
   const haptic = useWebHaptics();
   const {
     createBooking: { mutateAsync: createBooking },

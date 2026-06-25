@@ -9,39 +9,62 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AuthedRoutesRouteRouteImport } from './routes/_authedRoutes/route'
+import { Route as ScannerRouteRouteImport } from './routes/scanner/route'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as MarketingRouteRouteImport } from './routes/_marketing/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as VenuesIndexRouteImport } from './routes/venues/index'
+import { Route as ScannerIndexRouteImport } from './routes/scanner/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as MarketingIndexRouteImport } from './routes/_marketing/index'
+import { Route as MarketingAboutRouteImport } from './routes/_marketing/about'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as VenuesVenueIdIndexRouteImport } from './routes/venues/$venueId/index'
-import { Route as AuthedRoutesProfileIndexRouteImport } from './routes/_authedRoutes/profile/index'
-import { Route as VenuesVenueIdBookIndexRouteImport } from './routes/venues/$venueId/book/index'
+import { Route as ScannerCalendarIndexRouteImport } from './routes/scanner/calendar/index'
+import { Route as DashboardVenueIndexRouteImport } from './routes/dashboard/venue/index'
+import { Route as DashboardTeamIndexRouteImport } from './routes/dashboard/team/index'
+import { Route as MarketingVenuesIndexRouteImport } from './routes/_marketing/venues/index'
+import { Route as MarketingBookingsIndexRouteImport } from './routes/_marketing/bookings/index'
+import { Route as MarketingBecomePartnerIndexRouteImport } from './routes/_marketing/become-partner/index'
+import { Route as MarketingVenuesVenueIdIndexRouteImport } from './routes/_marketing/venues/$venueId/index'
+import { Route as MarketingVenuesVenueIdBookIndexRouteImport } from './routes/_marketing/venues/$venueId/book/index'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const ScannerRouteRoute = ScannerRouteRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedRoutesRouteRoute = AuthedRoutesRouteRouteImport.update({
-  id: '/_authedRoutes',
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingRouteRoute = MarketingRouteRouteImport.update({
+  id: '/_marketing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const ScannerIndexRoute = ScannerIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => ScannerRouteRoute,
 } as any)
-const VenuesIndexRoute = VenuesIndexRouteImport.update({
-  id: '/venues/',
-  path: '/venues/',
-  getParentRoute: () => rootRouteImport,
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const MarketingIndexRoute = MarketingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MarketingRouteRoute,
+} as any)
+const MarketingAboutRoute = MarketingAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => MarketingRouteRoute,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
@@ -53,115 +76,190 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const VenuesVenueIdIndexRoute = VenuesVenueIdIndexRouteImport.update({
-  id: '/venues/$venueId/',
-  path: '/venues/$venueId/',
-  getParentRoute: () => rootRouteImport,
+const ScannerCalendarIndexRoute = ScannerCalendarIndexRouteImport.update({
+  id: '/calendar/',
+  path: '/calendar/',
+  getParentRoute: () => ScannerRouteRoute,
 } as any)
-const AuthedRoutesProfileIndexRoute =
-  AuthedRoutesProfileIndexRouteImport.update({
-    id: '/profile/',
-    path: '/profile/',
-    getParentRoute: () => AuthedRoutesRouteRoute,
+const DashboardVenueIndexRoute = DashboardVenueIndexRouteImport.update({
+  id: '/venue/',
+  path: '/venue/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardTeamIndexRoute = DashboardTeamIndexRouteImport.update({
+  id: '/team/',
+  path: '/team/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const MarketingVenuesIndexRoute = MarketingVenuesIndexRouteImport.update({
+  id: '/venues/',
+  path: '/venues/',
+  getParentRoute: () => MarketingRouteRoute,
+} as any)
+const MarketingBookingsIndexRoute = MarketingBookingsIndexRouteImport.update({
+  id: '/bookings/',
+  path: '/bookings/',
+  getParentRoute: () => MarketingRouteRoute,
+} as any)
+const MarketingBecomePartnerIndexRoute =
+  MarketingBecomePartnerIndexRouteImport.update({
+    id: '/become-partner/',
+    path: '/become-partner/',
+    getParentRoute: () => MarketingRouteRoute,
   } as any)
-const VenuesVenueIdBookIndexRoute = VenuesVenueIdBookIndexRouteImport.update({
-  id: '/venues/$venueId/book/',
-  path: '/venues/$venueId/book/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const MarketingVenuesVenueIdIndexRoute =
+  MarketingVenuesVenueIdIndexRouteImport.update({
+    id: '/venues/$venueId/',
+    path: '/venues/$venueId/',
+    getParentRoute: () => MarketingRouteRoute,
+  } as any)
+const MarketingVenuesVenueIdBookIndexRoute =
+  MarketingVenuesVenueIdBookIndexRouteImport.update({
+    id: '/venues/$venueId/book/',
+    path: '/venues/$venueId/book/',
+    getParentRoute: () => MarketingRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/': typeof MarketingIndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/scanner': typeof ScannerRouteRouteWithChildren
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/venues/': typeof VenuesIndexRoute
-  '/profile/': typeof AuthedRoutesProfileIndexRoute
-  '/venues/$venueId/': typeof VenuesVenueIdIndexRoute
-  '/venues/$venueId/book/': typeof VenuesVenueIdBookIndexRoute
+  '/about': typeof MarketingAboutRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/scanner/': typeof ScannerIndexRoute
+  '/become-partner/': typeof MarketingBecomePartnerIndexRoute
+  '/bookings/': typeof MarketingBookingsIndexRoute
+  '/venues/': typeof MarketingVenuesIndexRoute
+  '/dashboard/team/': typeof DashboardTeamIndexRoute
+  '/dashboard/venue/': typeof DashboardVenueIndexRoute
+  '/scanner/calendar/': typeof ScannerCalendarIndexRoute
+  '/venues/$venueId/': typeof MarketingVenuesVenueIdIndexRoute
+  '/venues/$venueId/book/': typeof MarketingVenuesVenueIdBookIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/': typeof MarketingIndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/venues': typeof VenuesIndexRoute
-  '/profile': typeof AuthedRoutesProfileIndexRoute
-  '/venues/$venueId': typeof VenuesVenueIdIndexRoute
-  '/venues/$venueId/book': typeof VenuesVenueIdBookIndexRoute
+  '/about': typeof MarketingAboutRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/scanner': typeof ScannerIndexRoute
+  '/become-partner': typeof MarketingBecomePartnerIndexRoute
+  '/bookings': typeof MarketingBookingsIndexRoute
+  '/venues': typeof MarketingVenuesIndexRoute
+  '/dashboard/team': typeof DashboardTeamIndexRoute
+  '/dashboard/venue': typeof DashboardVenueIndexRoute
+  '/scanner/calendar': typeof ScannerCalendarIndexRoute
+  '/venues/$venueId': typeof MarketingVenuesVenueIdIndexRoute
+  '/venues/$venueId/book': typeof MarketingVenuesVenueIdBookIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_auth': typeof AuthRouteRouteWithChildren
-  '/_authedRoutes': typeof AuthedRoutesRouteRouteWithChildren
-  '/about': typeof AboutRoute
+  '/_marketing': typeof MarketingRouteRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/scanner': typeof ScannerRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
-  '/venues/': typeof VenuesIndexRoute
-  '/_authedRoutes/profile/': typeof AuthedRoutesProfileIndexRoute
-  '/venues/$venueId/': typeof VenuesVenueIdIndexRoute
-  '/venues/$venueId/book/': typeof VenuesVenueIdBookIndexRoute
+  '/_marketing/about': typeof MarketingAboutRoute
+  '/_marketing/': typeof MarketingIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/scanner/': typeof ScannerIndexRoute
+  '/_marketing/become-partner/': typeof MarketingBecomePartnerIndexRoute
+  '/_marketing/bookings/': typeof MarketingBookingsIndexRoute
+  '/_marketing/venues/': typeof MarketingVenuesIndexRoute
+  '/dashboard/team/': typeof DashboardTeamIndexRoute
+  '/dashboard/venue/': typeof DashboardVenueIndexRoute
+  '/scanner/calendar/': typeof ScannerCalendarIndexRoute
+  '/_marketing/venues/$venueId/': typeof MarketingVenuesVenueIdIndexRoute
+  '/_marketing/venues/$venueId/book/': typeof MarketingVenuesVenueIdBookIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
+    | '/dashboard'
+    | '/scanner'
     | '/login'
     | '/register'
+    | '/about'
+    | '/dashboard/'
+    | '/scanner/'
+    | '/become-partner/'
+    | '/bookings/'
     | '/venues/'
-    | '/profile/'
+    | '/dashboard/team/'
+    | '/dashboard/venue/'
+    | '/scanner/calendar/'
     | '/venues/$venueId/'
     | '/venues/$venueId/book/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/login'
     | '/register'
+    | '/about'
+    | '/dashboard'
+    | '/scanner'
+    | '/become-partner'
+    | '/bookings'
     | '/venues'
-    | '/profile'
+    | '/dashboard/team'
+    | '/dashboard/venue'
+    | '/scanner/calendar'
     | '/venues/$venueId'
     | '/venues/$venueId/book'
   id:
     | '__root__'
-    | '/'
     | '/_auth'
-    | '/_authedRoutes'
-    | '/about'
+    | '/_marketing'
+    | '/dashboard'
+    | '/scanner'
     | '/_auth/login'
     | '/_auth/register'
-    | '/venues/'
-    | '/_authedRoutes/profile/'
-    | '/venues/$venueId/'
-    | '/venues/$venueId/book/'
+    | '/_marketing/about'
+    | '/_marketing/'
+    | '/dashboard/'
+    | '/scanner/'
+    | '/_marketing/become-partner/'
+    | '/_marketing/bookings/'
+    | '/_marketing/venues/'
+    | '/dashboard/team/'
+    | '/dashboard/venue/'
+    | '/scanner/calendar/'
+    | '/_marketing/venues/$venueId/'
+    | '/_marketing/venues/$venueId/book/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  AuthedRoutesRouteRoute: typeof AuthedRoutesRouteRouteWithChildren
-  AboutRoute: typeof AboutRoute
-  VenuesIndexRoute: typeof VenuesIndexRoute
-  VenuesVenueIdIndexRoute: typeof VenuesVenueIdIndexRoute
-  VenuesVenueIdBookIndexRoute: typeof VenuesVenueIdBookIndexRoute
+  MarketingRouteRoute: typeof MarketingRouteRouteWithChildren
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  ScannerRouteRoute: typeof ScannerRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+    '/scanner': {
+      id: '/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof ScannerRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authedRoutes': {
-      id: '/_authedRoutes'
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_marketing': {
+      id: '/_marketing'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthedRoutesRouteRouteImport
+      preLoaderRoute: typeof MarketingRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
@@ -171,19 +269,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/scanner/': {
+      id: '/scanner/'
+      path: '/'
+      fullPath: '/scanner/'
+      preLoaderRoute: typeof ScannerIndexRouteImport
+      parentRoute: typeof ScannerRouteRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/_marketing/': {
+      id: '/_marketing/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof MarketingIndexRouteImport
+      parentRoute: typeof MarketingRouteRoute
     }
-    '/venues/': {
-      id: '/venues/'
-      path: '/venues'
-      fullPath: '/venues/'
-      preLoaderRoute: typeof VenuesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_marketing/about': {
+      id: '/_marketing/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof MarketingAboutRouteImport
+      parentRoute: typeof MarketingRouteRoute
     }
     '/_auth/register': {
       id: '/_auth/register'
@@ -199,26 +311,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/venues/$venueId/': {
-      id: '/venues/$venueId/'
+    '/scanner/calendar/': {
+      id: '/scanner/calendar/'
+      path: '/calendar'
+      fullPath: '/scanner/calendar/'
+      preLoaderRoute: typeof ScannerCalendarIndexRouteImport
+      parentRoute: typeof ScannerRouteRoute
+    }
+    '/dashboard/venue/': {
+      id: '/dashboard/venue/'
+      path: '/venue'
+      fullPath: '/dashboard/venue/'
+      preLoaderRoute: typeof DashboardVenueIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/team/': {
+      id: '/dashboard/team/'
+      path: '/team'
+      fullPath: '/dashboard/team/'
+      preLoaderRoute: typeof DashboardTeamIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/_marketing/venues/': {
+      id: '/_marketing/venues/'
+      path: '/venues'
+      fullPath: '/venues/'
+      preLoaderRoute: typeof MarketingVenuesIndexRouteImport
+      parentRoute: typeof MarketingRouteRoute
+    }
+    '/_marketing/bookings/': {
+      id: '/_marketing/bookings/'
+      path: '/bookings'
+      fullPath: '/bookings/'
+      preLoaderRoute: typeof MarketingBookingsIndexRouteImport
+      parentRoute: typeof MarketingRouteRoute
+    }
+    '/_marketing/become-partner/': {
+      id: '/_marketing/become-partner/'
+      path: '/become-partner'
+      fullPath: '/become-partner/'
+      preLoaderRoute: typeof MarketingBecomePartnerIndexRouteImport
+      parentRoute: typeof MarketingRouteRoute
+    }
+    '/_marketing/venues/$venueId/': {
+      id: '/_marketing/venues/$venueId/'
       path: '/venues/$venueId'
       fullPath: '/venues/$venueId/'
-      preLoaderRoute: typeof VenuesVenueIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof MarketingVenuesVenueIdIndexRouteImport
+      parentRoute: typeof MarketingRouteRoute
     }
-    '/_authedRoutes/profile/': {
-      id: '/_authedRoutes/profile/'
-      path: '/profile'
-      fullPath: '/profile/'
-      preLoaderRoute: typeof AuthedRoutesProfileIndexRouteImport
-      parentRoute: typeof AuthedRoutesRouteRoute
-    }
-    '/venues/$venueId/book/': {
-      id: '/venues/$venueId/book/'
+    '/_marketing/venues/$venueId/book/': {
+      id: '/_marketing/venues/$venueId/book/'
       path: '/venues/$venueId/book'
       fullPath: '/venues/$venueId/book/'
-      preLoaderRoute: typeof VenuesVenueIdBookIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof MarketingVenuesVenueIdBookIndexRouteImport
+      parentRoute: typeof MarketingRouteRoute
     }
   }
 }
@@ -237,25 +384,65 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
-interface AuthedRoutesRouteRouteChildren {
-  AuthedRoutesProfileIndexRoute: typeof AuthedRoutesProfileIndexRoute
+interface MarketingRouteRouteChildren {
+  MarketingAboutRoute: typeof MarketingAboutRoute
+  MarketingIndexRoute: typeof MarketingIndexRoute
+  MarketingBecomePartnerIndexRoute: typeof MarketingBecomePartnerIndexRoute
+  MarketingBookingsIndexRoute: typeof MarketingBookingsIndexRoute
+  MarketingVenuesIndexRoute: typeof MarketingVenuesIndexRoute
+  MarketingVenuesVenueIdIndexRoute: typeof MarketingVenuesVenueIdIndexRoute
+  MarketingVenuesVenueIdBookIndexRoute: typeof MarketingVenuesVenueIdBookIndexRoute
 }
 
-const AuthedRoutesRouteRouteChildren: AuthedRoutesRouteRouteChildren = {
-  AuthedRoutesProfileIndexRoute: AuthedRoutesProfileIndexRoute,
+const MarketingRouteRouteChildren: MarketingRouteRouteChildren = {
+  MarketingAboutRoute: MarketingAboutRoute,
+  MarketingIndexRoute: MarketingIndexRoute,
+  MarketingBecomePartnerIndexRoute: MarketingBecomePartnerIndexRoute,
+  MarketingBookingsIndexRoute: MarketingBookingsIndexRoute,
+  MarketingVenuesIndexRoute: MarketingVenuesIndexRoute,
+  MarketingVenuesVenueIdIndexRoute: MarketingVenuesVenueIdIndexRoute,
+  MarketingVenuesVenueIdBookIndexRoute: MarketingVenuesVenueIdBookIndexRoute,
 }
 
-const AuthedRoutesRouteRouteWithChildren =
-  AuthedRoutesRouteRoute._addFileChildren(AuthedRoutesRouteRouteChildren)
+const MarketingRouteRouteWithChildren = MarketingRouteRoute._addFileChildren(
+  MarketingRouteRouteChildren,
+)
+
+interface DashboardRouteRouteChildren {
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardTeamIndexRoute: typeof DashboardTeamIndexRoute
+  DashboardVenueIndexRoute: typeof DashboardVenueIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardTeamIndexRoute: DashboardTeamIndexRoute,
+  DashboardVenueIndexRoute: DashboardVenueIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
+interface ScannerRouteRouteChildren {
+  ScannerIndexRoute: typeof ScannerIndexRoute
+  ScannerCalendarIndexRoute: typeof ScannerCalendarIndexRoute
+}
+
+const ScannerRouteRouteChildren: ScannerRouteRouteChildren = {
+  ScannerIndexRoute: ScannerIndexRoute,
+  ScannerCalendarIndexRoute: ScannerCalendarIndexRoute,
+}
+
+const ScannerRouteRouteWithChildren = ScannerRouteRoute._addFileChildren(
+  ScannerRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
-  AuthedRoutesRouteRoute: AuthedRoutesRouteRouteWithChildren,
-  AboutRoute: AboutRoute,
-  VenuesIndexRoute: VenuesIndexRoute,
-  VenuesVenueIdIndexRoute: VenuesVenueIdIndexRoute,
-  VenuesVenueIdBookIndexRoute: VenuesVenueIdBookIndexRoute,
+  MarketingRouteRoute: MarketingRouteRouteWithChildren,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  ScannerRouteRoute: ScannerRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

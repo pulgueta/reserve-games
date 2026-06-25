@@ -1,5 +1,4 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -178,32 +177,24 @@ function FieldError({
 }: React.ComponentProps<"div"> & {
   errors?: Array<{ message?: string } | undefined>;
 }) {
-  const content = useMemo(() => {
-    if (children) {
-      return children;
-    }
+  // React Compiler memoizes this — no useMemo. Dedupe by message so each list
+  // item has a stable key (never the array index).
+  const uniqueErrors = [
+    ...new Map((errors ?? []).map((error) => [error?.message, error])).values(),
+  ].filter((error): error is { message: string } => Boolean(error?.message));
 
-    if (!errors?.length) {
-      return null;
-    }
-
-    const uniqueErrors = [
-      ...new Map(errors.map((error) => [error?.message, error])).values(),
-    ];
-
-    if (uniqueErrors?.length === 1) {
-      return uniqueErrors[0]?.message;
-    }
-
-    return (
+  let content = children;
+  if (!content && uniqueErrors.length === 1) {
+    content = uniqueErrors[0].message;
+  } else if (!content && uniqueErrors.length > 1) {
+    content = (
       <ul className="ml-4 flex list-disc flex-col gap-1">
-        {uniqueErrors.map(
-          (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>,
-        )}
+        {uniqueErrors.map((error) => (
+          <li key={error.message}>{error.message}</li>
+        ))}
       </ul>
     );
-  }, [children, errors]);
+  }
 
   if (!content) {
     return null;

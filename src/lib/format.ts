@@ -24,6 +24,11 @@ const dateTime = new Intl.DateTimeFormat(LOCALE, {
   timeStyle: "short",
 });
 const relative = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" });
+const km = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 1 });
+const rating = new Intl.NumberFormat(LOCALE, {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
 
 function toDate(value: Date | number): Date {
   return value instanceof Date ? value : new Date(value);
@@ -79,6 +84,19 @@ export function formatRelativeTime(
   }
 
   return relative.format(Math.round(duration), "years");
+}
+
+/** "4,8" — one-decimal rating, es-CO. Avoids per-render `Intl` construction. */
+export function formatRating(value: number): string {
+  return rating.format(value);
+}
+
+/** "850 m" / "2,3 km" from a distance in meters. */
+export function formatDistance(meters: number): string {
+  if (meters < 1000) {
+    return `${Math.round(meters)} m`;
+  }
+  return `${km.format(meters / 1000)} km`;
 }
 
 /** "7:00 p. m." from a "HH:mm" 24h string (e.g. venue opening hours). */

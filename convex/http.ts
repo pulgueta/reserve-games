@@ -74,6 +74,40 @@ const clerkWebhook = httpAction(async (ctx, request) => {
       }
       break;
     }
+    // One Clerk organization = one venue. Mirror the org lifecycle and its
+    // memberships into the `venues` row and the scoped convex-authz roles.
+    case "organization.created": {
+      await ctx.runMutation(internal.organizations.onOrgCreated, {
+        orgId: event.data.id,
+        name: event.data.name,
+        createdBy: event.data.created_by ?? "",
+      });
+      break;
+    }
+    case "organization.deleted": {
+      if (event.data.id) {
+        await ctx.runMutation(internal.organizations.onOrgDeleted, {
+          orgId: event.data.id,
+        });
+      }
+      break;
+    }
+    case "organizationMembership.created":
+    case "organizationMembership.updated": {
+      await ctx.runMutation(internal.organizations.syncMembership, {
+        orgId: event.data.organization.id,
+        userId: event.data.public_user_data.user_id,
+        roleSlug: event.data.role,
+      });
+      break;
+    }
+    case "organizationMembership.deleted": {
+      await ctx.runMutation(internal.organizations.removeMembership, {
+        orgId: event.data.organization.id,
+        userId: event.data.public_user_data.user_id,
+      });
+      break;
+    }
   }
 
   return new Response("OK", { status: 200 });

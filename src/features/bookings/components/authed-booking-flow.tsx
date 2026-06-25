@@ -14,7 +14,12 @@ interface AuthedBookingFlowProps {
   onConfirmed: (booking: ConfirmedBooking) => void;
 }
 
-export const AuthedBookingFlow: FC<AuthedBookingFlowProps> = ({ venue, units, equipment, onConfirmed }) => {
+export const AuthedBookingFlow: FC<AuthedBookingFlowProps> = ({
+  venue,
+  units,
+  equipment,
+  onConfirmed,
+}) => {
   const { data: session } = useSession();
   return (
     <BookingFlow

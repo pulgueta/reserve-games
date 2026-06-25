@@ -3,31 +3,22 @@ import type { output } from "zod";
 import { z } from "zod";
 
 import { zodTable } from ".";
+import {
+  BOOKING_STATUSES,
+  PAYMENT_METHODS,
+  PAYMENT_STATUSES,
+  ROLES,
+  SPORTS,
+} from "./constants";
 
-/**
- * Sports the platform supports, aligned to the product spec (es-CO). Each sport
- * shares the common venue base but exposes its own `sportConfig` and modules.
- */
-export const SPORTS = [
-  "football",
-  "padel",
-  "tennis",
-  "basketball",
-  "pingpong",
-  "billiards",
-  "gym",
-] as const;
+export { BOOKING_STATUSES, PAYMENT_METHODS, PAYMENT_STATUSES, ROLES, SPORTS };
 
 export const sportSchema = z.enum(SPORTS);
 
-export const BOOKING_STATUSES = [
-  "pending",
-  "confirmed",
-  "cancelled",
-  "completed",
-] as const;
-
-export const PAYMENT_STATUSES = ["pending", "paid"] as const;
+/** Days of the week a venue operates, 0=Sunday … 6=Saturday. */
+const operatingDaysSchema = z
+  .array(z.number().int().min(0).max(6))
+  .default([0, 1, 2, 3, 4, 5, 6]);
 
 /**
  * Owner-toggled capabilities. Each switch reveals a client module (e.g. the
@@ -45,6 +36,11 @@ const capabilities = z.object({
   bar: z.boolean(),
   /** Has more than one bookable unit (Cancha 1/2/3, Mesa 1-6…). */
   multipleUnits: z.boolean(),
+  /** Charges for extras like referee/coach/ball-boy ("Servicios con costo").
+   * Optional so existing capability objects stay valid without a migration. */
+  paidServices: z.boolean().optional(),
+  /** Secure lockers ("Casilleros"), distinct from locker rooms/showers. */
+  lockers: z.boolean().optional(),
 });
 
 /**
@@ -63,11 +59,15 @@ const sportConfig = z.object({
   capacity: z.string().optional(),
   /** Pádel "Panorámica", Ping Pong "Profesional ITTF", Billar "Troneras"… */
   unitType: z.string().optional(),
+  /** Indoor/outdoor/covered ("Escenario"): "Indoor climatizado", "Techada"… */
+  escenario: z.string().optional(),
 });
 
 /**
  * A user mirrored from Clerk via the `/clerk-users-webhook` http action.
  * `clerkId` is the JWT subject (`user_…`) and the join key to bookings/reviews.
+ * Roles and venue/staff membership live in Clerk organizations (mirrored into
+ * convex-authz), never on this row.
  */
 export const users = zodTable("users", () => ({
   clerkId: z.string(),
@@ -88,6 +88,7 @@ export const venues = zodTable("venues", () => ({
     .max(120, "El nombre debe tener menos de 120 caracteres")
     .trim(),
   description: z.string().max(1000).optional(),
+  uuid: z.uuid(),
   sport: sportSchema,
   /** Price for a one-hour slot, in Colombian pesos (no decimals). */
   pricePerHour: z.coerce
@@ -95,6 +96,11 @@ export const venues = zodTable("venues", () => ({
     .min(1, "El precio debe ser mayor que 0"),
   /** Some spaces (e.g. billar) charge by elapsed time rather than fixed hours. */
   chargeByTime: z.boolean().default(false),
+  /** Booking duration unit the owner configures; drives the client's duration
+   * selector and the displayed price unit. Hours-first; minutes is post-MVP. */
+  timeUnit: z.enum(["hours", "minutes"]).default("hours"),
+  /** Maximum people the space holds, shown on the venue detail. */
+  maxCapacity: z.number().int().positive().optional(),
   address: z.object({
     fullAddress: z.string().min(1, "La dirección es obligatoria"),
     details: z.string().optional(),
@@ -102,13 +108,27 @@ export const venues = zodTable("venues", () => ({
   city: z.string().min(1, "La ciudad es obligatoria"),
   state: z.string().min(1, "El departamento es obligatorio"),
   neighborhood: z.string().optional(),
-  /** Clerk user id of the owner. Stamped server-side on create. */
+  /** Geo coordinates for proximity sort (Haversine, client-side). Optional so
+   * pre-geo rows stay valid; set from the admin location picker. */
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
+  /** Public contact phone shown on the venue detail. */
+  contactPhone: z.string().max(20).optional(),
+  /** Clerk organization id this venue belongs to (one org = one venue). The
+   * authorization scope for every owner/staff action. Set when the org's
+   * `organization.created` webhook mirrors the venue. Optional so pre-org rows
+   * stay valid. */
+  orgId: z.string().optional(),
+  /** Clerk user id of the org creator (socio), for display/records. Authority
+   * is the org membership (mirrored into authz), not this field. */
   ownerId: z.string(),
   isActive: z.boolean().default(true),
   /** Opening time as "HH:mm" (24h). */
   openAt: z.string().default("08:00"),
   /** Closing time as "HH:mm" (24h). */
   closeAt: z.string().default("22:00"),
+  /** Days of the week the venue operates (0=Sun … 6=Sat). */
+  operatingDays: operatingDaysSchema,
   /** Gallery image URLs; the first is the cover. */
   images: z.array(z.string()).default([]),
   /** Denormalized review aggregates, recomputed on review writes. */
@@ -181,6 +201,13 @@ export const bookings = zodTable("bookings", (id) => ({
   /** `subtotal + addOnsTotal`. */
   totalPrice: z.number(),
   paymentStatus: z.enum(PAYMENT_STATUSES).default("pending"),
+  /** Online (gateway) or cash-at-venue. Set when payment is confirmed. */
+  paymentMethod: z.enum(PAYMENT_METHODS).optional(),
+  /** Opaque access code, minted once on confirmation and never regenerated.
+   * Never derived from `_id` — the QR encodes this, scanners resolve by it. */
+  qrToken: z.string().optional(),
+  /** Epoch ms of the first successful QR scan; presence = already used. */
+  verifiedAt: z.number().optional(),
   notes: z.string().max(500).optional(),
 }));
 
@@ -203,11 +230,16 @@ export const favorites = zodTable("favorites", (id) => ({
 }));
 
 export default defineSchema({
-  users: users.table().index("by_clerkId", ["clerkId"]),
+  users: users
+    .table()
+    .index("by_clerkId", ["clerkId"])
+    .index("by_email", ["email"]),
 
   venues: venues
     .table()
+    .index("by_orgId", ["orgId"])
     .index("by_ownerId", ["ownerId"])
+    .index("by_uuid", ["uuid"])
     .index("by_isActive", ["isActive"])
     .index("by_sport", ["sport"])
     .index("by_city_and_state", ["city", "state"])
@@ -226,7 +258,8 @@ export default defineSchema({
     .index("by_venueId", ["venueId"])
     .index("by_venue_and_date", ["venueId", "date"])
     .index("by_date", ["date"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_qrToken", ["qrToken"]),
 
   reviews: reviews
     .table()
@@ -243,6 +276,8 @@ export default defineSchema({
 export type Sport = (typeof SPORTS)[number];
 export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export type Role = (typeof ROLES)[number];
 export type Capabilities = output<typeof capabilities>;
 export type User = output<typeof users.schema>;
 export type Venue = output<typeof venues.schema>;

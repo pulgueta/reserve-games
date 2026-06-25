@@ -5,6 +5,23 @@ Reserve game is a platform where sport fields can add their fields for users to 
 > [!IMPORTANT]
 > Keep `AGENTS.md` updated with project status.
 
+## Project status
+
+Roles & tenancy run on **Clerk Organizations — one org = one venue**. Membership
+is mirrored into the `@djpanda/convex-authz` component by the Clerk
+org/membership webhooks (`convex/http.ts` → `convex/organizations.ts`):
+`org:admin` → `admin`, `org:member` → `staff`, scoped to
+`{ type: "venue", id: orgId }`. Becoming a socio = creating an org (client Clerk
+hooks); the `organization.created` webhook mirrors an inactive venue stub the
+socio completes in `/dashboard`. Convex writes authorize with
+`authz.require(perm, venueScope(venue.orgId))`; route guards derive role from the
+active org server-side (`use-session` → `__root` `beforeLoad`) and are UX only.
+Staff = org members managed via Clerk hooks; the active/inactive toggle is the
+scoped `staff` role (`convex/staff.ts`). Every `zAuth*` write is rate-limited
+(`convex/ratelimit.ts`, blanket `authWrite` bucket). Payments are mocked
+(`bookings.confirmPayment`) pending a real gateway. **Routes are English; page
+copy is es-CO Spanish.**
+
 <!-- intent-skills:start -->
 ## Skill Loading
 
