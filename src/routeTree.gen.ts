@@ -14,10 +14,11 @@ import { Route as AuthedRoutesRouteRouteImport } from './routes/_authedRoutes/ro
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VenuesIndexRouteImport } from './routes/venues/index'
-import { Route as VenuesVenueIdRouteImport } from './routes/venues/$venueId'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as VenuesVenueIdIndexRouteImport } from './routes/venues/$venueId/index'
 import { Route as AuthedRoutesProfileIndexRouteImport } from './routes/_authedRoutes/profile/index'
+import { Route as VenuesVenueIdBookIndexRouteImport } from './routes/venues/$venueId/book/index'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -42,11 +43,6 @@ const VenuesIndexRoute = VenuesIndexRouteImport.update({
   path: '/venues/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VenuesVenueIdRoute = VenuesVenueIdRouteImport.update({
-  id: '/venues/$venueId',
-  path: '/venues/$venueId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -57,30 +53,42 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const VenuesVenueIdIndexRoute = VenuesVenueIdIndexRouteImport.update({
+  id: '/venues/$venueId/',
+  path: '/venues/$venueId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedRoutesProfileIndexRoute =
   AuthedRoutesProfileIndexRouteImport.update({
     id: '/profile/',
     path: '/profile/',
     getParentRoute: () => AuthedRoutesRouteRoute,
   } as any)
+const VenuesVenueIdBookIndexRoute = VenuesVenueIdBookIndexRouteImport.update({
+  id: '/venues/$venueId/book/',
+  path: '/venues/$venueId/book/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/venues/$venueId': typeof VenuesVenueIdRoute
   '/venues/': typeof VenuesIndexRoute
   '/profile/': typeof AuthedRoutesProfileIndexRoute
+  '/venues/$venueId/': typeof VenuesVenueIdIndexRoute
+  '/venues/$venueId/book/': typeof VenuesVenueIdBookIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/venues/$venueId': typeof VenuesVenueIdRoute
   '/venues': typeof VenuesIndexRoute
   '/profile': typeof AuthedRoutesProfileIndexRoute
+  '/venues/$venueId': typeof VenuesVenueIdIndexRoute
+  '/venues/$venueId/book': typeof VenuesVenueIdBookIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -90,9 +98,10 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
-  '/venues/$venueId': typeof VenuesVenueIdRoute
   '/venues/': typeof VenuesIndexRoute
   '/_authedRoutes/profile/': typeof AuthedRoutesProfileIndexRoute
+  '/venues/$venueId/': typeof VenuesVenueIdIndexRoute
+  '/venues/$venueId/book/': typeof VenuesVenueIdBookIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,18 +110,20 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/register'
-    | '/venues/$venueId'
     | '/venues/'
     | '/profile/'
+    | '/venues/$venueId/'
+    | '/venues/$venueId/book/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/login'
     | '/register'
-    | '/venues/$venueId'
     | '/venues'
     | '/profile'
+    | '/venues/$venueId'
+    | '/venues/$venueId/book'
   id:
     | '__root__'
     | '/'
@@ -121,9 +132,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/_auth/login'
     | '/_auth/register'
-    | '/venues/$venueId'
     | '/venues/'
     | '/_authedRoutes/profile/'
+    | '/venues/$venueId/'
+    | '/venues/$venueId/book/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -131,8 +143,9 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   AuthedRoutesRouteRoute: typeof AuthedRoutesRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
-  VenuesVenueIdRoute: typeof VenuesVenueIdRoute
   VenuesIndexRoute: typeof VenuesIndexRoute
+  VenuesVenueIdIndexRoute: typeof VenuesVenueIdIndexRoute
+  VenuesVenueIdBookIndexRoute: typeof VenuesVenueIdBookIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,13 +185,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VenuesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/venues/$venueId': {
-      id: '/venues/$venueId'
-      path: '/venues/$venueId'
-      fullPath: '/venues/$venueId'
-      preLoaderRoute: typeof VenuesVenueIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_auth/register': {
       id: '/_auth/register'
       path: '/register'
@@ -193,12 +199,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/venues/$venueId/': {
+      id: '/venues/$venueId/'
+      path: '/venues/$venueId'
+      fullPath: '/venues/$venueId/'
+      preLoaderRoute: typeof VenuesVenueIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authedRoutes/profile/': {
       id: '/_authedRoutes/profile/'
       path: '/profile'
       fullPath: '/profile/'
       preLoaderRoute: typeof AuthedRoutesProfileIndexRouteImport
       parentRoute: typeof AuthedRoutesRouteRoute
+    }
+    '/venues/$venueId/book/': {
+      id: '/venues/$venueId/book/'
+      path: '/venues/$venueId/book'
+      fullPath: '/venues/$venueId/book/'
+      preLoaderRoute: typeof VenuesVenueIdBookIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -233,8 +253,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   AuthedRoutesRouteRoute: AuthedRoutesRouteRouteWithChildren,
   AboutRoute: AboutRoute,
-  VenuesVenueIdRoute: VenuesVenueIdRoute,
   VenuesIndexRoute: VenuesIndexRoute,
+  VenuesVenueIdIndexRoute: VenuesVenueIdIndexRoute,
+  VenuesVenueIdBookIndexRoute: VenuesVenueIdBookIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

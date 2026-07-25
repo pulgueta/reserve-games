@@ -10,9 +10,14 @@
 
 import type * as bookings from "../bookings.js";
 import type * as errors from "../errors.js";
+import type * as favorites from "../favorites.js";
+import type * as http from "../http.js";
 import type * as identity from "../identity.js";
 import type * as index from "../index.js";
+import type * as rentalEquipment from "../rentalEquipment.js";
+import type * as reviews from "../reviews.js";
 import type * as users from "../users.js";
+import type * as venueUnits from "../venueUnits.js";
 import type * as venues from "../venues.js";
 
 import type {
@@ -24,9 +29,14 @@ import type {
 declare const fullApi: ApiFromModules<{
   bookings: typeof bookings;
   errors: typeof errors;
+  favorites: typeof favorites;
+  http: typeof http;
   identity: typeof identity;
   index: typeof index;
+  rentalEquipment: typeof rentalEquipment;
+  reviews: typeof reviews;
   users: typeof users;
+  venueUnits: typeof venueUnits;
   venues: typeof venues;
 }>;
 
