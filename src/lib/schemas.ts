@@ -1,29 +1,14 @@
 import { z } from "zod";
 
-/** Sport options for selects. Kept client-side to avoid importing Convex server code. */
-export const SPORT_OPTIONS: { value: string; label: string }[] = [
-  { value: "football", label: "Football" },
-  { value: "futsal", label: "Futsal" },
-  { value: "tennis", label: "Tennis" },
-  { value: "padel", label: "Padel" },
-  { value: "basketball", label: "Basketball" },
-  { value: "volleyball", label: "Volleyball" },
-];
+import { SPORT_VALUES } from "./sports";
 
-const SPORT_VALUES = [
-  "football",
-  "futsal",
-  "tennis",
-  "padel",
-  "basketball",
-  "volleyball",
-] as const;
+export { SPORT_OPTIONS } from "./sports";
 
 export const DURATION_OPTIONS: { value: string; label: string }[] = [
-  { value: "1", label: "1 hour" },
-  { value: "2", label: "2 hours" },
-  { value: "3", label: "3 hours" },
-  { value: "4", label: "4 hours" },
+  { value: "1", label: "1 hora" },
+  { value: "2", label: "2 horas" },
+  { value: "3", label: "3 horas" },
+  { value: "4", label: "4 horas" },
 ];
 
 /**

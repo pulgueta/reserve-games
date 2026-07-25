@@ -1,29 +1,30 @@
 /// <reference types="vite/client" />
+
+import { esMX } from "@clerk/localizations";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { IconContext } from "@phosphor-icons/react";
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import type { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { Toaster } from "sonner";
 
+import { Devtools } from "@/components/devtools";
 import { DefaultCatchBoundary } from "@/components/layout/error-component";
 import { Header } from "@/components/layout/header";
 import { LoadingComponent } from "@/components/layout/loading-component";
 import { NotFoundComponent } from "@/components/layout/not-found-component";
+import { Toaster } from "@/components/ui/toast";
 import { clientEnv } from "@/env/client";
 import { getClerkAuthQueryOptions } from "@/hooks/use-session";
 import PostHogProvider from "@/integrations/posthog/provider";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import { seo } from "@/lib/seo";
 import appCss from "@/styles.css?url";
 
@@ -81,18 +82,22 @@ function RootDocument({ children }: { children?: React.ReactNode }) {
   const { queryClient, convexClient } = Route.useRouteContext();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es-CO" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere]">
-        <ClerkProvider publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}>
+      <body className="antialiased">
+        <ClerkProvider
+          publishableKey={clientEnv.VITE_CLERK_PUBLISHABLE_KEY}
+          localization={esMX}
+          appearance={clerkAppearance}
+        >
           <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
             <QueryClientProvider client={queryClient}>
               <PostHogProvider>
                 <IconContext.Provider value={ICON_CONTEXT_VALUE}>
-                  <Toaster richColors position="top-center" />
+                  <Toaster />
                   <Header />
                   <main className="min-h-[calc(100dvh-4rem)]">
                     {children ?? <Outlet />}
@@ -105,19 +110,7 @@ function RootDocument({ children }: { children?: React.ReactNode }) {
 
         <Scripts />
 
-        <TanStackDevtools
-          config={{ position: "bottom-right" }}
-          plugins={[
-            {
-              name: "TanStack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            {
-              name: "TanStack Query",
-              render: <ReactQueryDevtoolsPanel />,
-            },
-          ]}
-        />
+        <Devtools />
       </body>
     </html>
   );

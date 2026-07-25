@@ -1,9 +1,14 @@
 import { api } from "@convex/_generated/api";
-import type { Venue } from "@convex/schema";
+import type { Sport, Venue } from "@convex/schema";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
-type VenueFilters = { city?: string; state?: string };
+type VenueFilters = {
+  q?: string;
+  sport?: Sport;
+  city?: string;
+  state?: string;
+};
 
 export function activeVenuesQueryOptions(filters: VenueFilters = {}) {
   return convexQuery(api.venues.getActive, filters);
@@ -13,11 +18,15 @@ export function venueByIdQueryOptions(id: Venue["_id"]) {
   return convexQuery(api.venues.getById, { id });
 }
 
+export function venueDetailQueryOptions(id: Venue["_id"]) {
+  return convexQuery(api.venues.getDetail, { id });
+}
+
 export function myVenuesQueryOptions() {
   return convexQuery(api.venues.getByOwner, {});
 }
 
-/** Live list of active venues, optionally filtered by city/state. */
+/** Live list of active venues, optionally filtered by q/sport/city/state. */
 export function useActiveVenues(filters: VenueFilters = {}) {
   return useSuspenseQuery(activeVenuesQueryOptions(filters));
 }

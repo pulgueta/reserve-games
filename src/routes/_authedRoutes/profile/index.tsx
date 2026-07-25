@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-import { BookingCard } from "@/components/bookings/booking-card";
 import { LoadingComponent } from "@/components/layout/loading-component";
-import { CreateVenueForm } from "@/components/venues/create-venue-form";
-import { VenueCard } from "@/components/venues/venue-card";
-import { myBookingsQueryOptions, useMyBookings } from "@/hooks/use-bookings";
-import { myVenuesQueryOptions, useMyVenues } from "@/hooks/use-venues";
+import { BookingCard } from "@/features/bookings/components/booking-card";
+import {
+  myBookingsQueryOptions,
+  useMyBookings,
+} from "@/features/bookings/hooks/use-bookings";
+import { CreateVenueForm } from "@/features/venues/components/create-venue-form";
+import { VenueCard } from "@/features/venues/components/venue-card";
+import {
+  myVenuesQueryOptions,
+  useMyVenues,
+} from "@/features/venues/hooks/use-venues";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authedRoutes/profile/")({

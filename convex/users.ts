@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-import { zQuery } from ".";
+import { zInternalMutation, zInternalQuery, zQuery } from ".";
+import { getUserId } from "./identity";
 
 /**
- * The current Clerk-authenticated user, derived straight from the JWT identity
- * (no `users` table yet — the Clerk session token is the source of truth).
- * Returns `null` when the caller is unauthenticated, so it is safe to render
- * from anywhere. Configure the `convex` JWT template in the Clerk Dashboard to
- * include the `name`, `email`, and `picture` claims surfaced here.
+ * The current Clerk-authenticated user. Reads the `users` row synced from Clerk
+ * (via the `/clerk-users-webhook` http action) and falls back to the JWT
+ * identity when the webhook hasn't landed yet (it's eventually consistent).
+ * Returns `null` when unauthenticated, so it's safe to render anywhere.
  */
 export const getCurrentUser = zQuery({
   args: z.object({}),
@@ -18,11 +18,73 @@ export const getCurrentUser = zQuery({
       return null;
     }
 
+    const synced = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
     return {
       userId: identity.subject,
-      name: identity.name ?? null,
-      email: identity.email ?? null,
-      image: identity.pictureUrl ?? null,
+      name: synced?.name ?? identity.name ?? null,
+      email: synced?.email ?? identity.email ?? null,
+      image: synced?.imageUrl ?? identity.pictureUrl ?? null,
     };
   },
+});
+
+/** Internal: a synced user row by Clerk id (used server-side). */
+export const getByClerkId = zInternalQuery({
+  args: z.object({ clerkId: z.string() }),
+  handler: async (ctx, { clerkId }) =>
+    ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+      .unique(),
+});
+
+/**
+ * Internal: upsert a user from a Clerk `user.created`/`user.updated` webhook.
+ * Keyed on `clerkId` so retried/duplicate events stay idempotent.
+ */
+export const upsertFromClerk = zInternalMutation({
+  args: z.object({
+    clerkId: z.string(),
+    email: z.string(),
+    name: z.string().optional(),
+    imageUrl: z.string().optional(),
+  }),
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, args);
+      return existing._id;
+    }
+
+    return await ctx.db.insert("users", args);
+  },
+});
+
+/** Internal: delete a user from a Clerk `user.deleted` webhook. */
+export const deleteFromClerk = zInternalMutation({
+  args: z.object({ clerkId: z.string() }),
+  handler: async (ctx, { clerkId }) => {
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+      .unique();
+
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+  },
+});
+
+/** Internal helper exported for reuse/testing: the caller's id or null. */
+export const currentUserId = zInternalQuery({
+  args: z.object({}),
+  handler: (ctx) => getUserId(ctx),
 });

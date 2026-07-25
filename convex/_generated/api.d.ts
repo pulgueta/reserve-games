@@ -9,9 +9,12 @@
  */
 
 import type * as bookings from "../bookings.js";
+import type * as crud from "../crud.js";
 import type * as errors from "../errors.js";
+import type * as http from "../http.js";
 import type * as identity from "../identity.js";
 import type * as index from "../index.js";
+import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 import type * as venues from "../venues.js";
 
@@ -23,9 +26,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   bookings: typeof bookings;
+  crud: typeof crud;
   errors: typeof errors;
+  http: typeof http;
   identity: typeof identity;
   index: typeof index;
+  seed: typeof seed;
   users: typeof users;
   venues: typeof venues;
 }>;
